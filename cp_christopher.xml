@@ -1,0 +1,138 @@
+<controlpoint name="CP_Christopher" layout="SPCoast" node="0x14">
+
+    <switches>
+            <switch name="1"  trackcircuit="1T1" />
+            <switch name="3"  trackcircuit="3T1" />
+            <switch name="3B" trackcircuit="3BT1"/>
+            <switch name="5"  trackcircuit="5T1" />
+    </switches>
+    <trackcircuits>
+            <trackcircuit name="1T1" />
+            <trackcircuit name="3T1" />
+            <trackcircuit name="3BT1"/>
+            <trackcircuit name="5T1" />
+            <trackcircuit name="EA1" />
+            <trackcircuit name="EA2" />
+            <trackcircuit name="WA1" />
+            <trackcircuit name="WA2" />
+            <trackcircuit name="T"   />
+    </trackcircuits>
+    <maintainers>
+            <call         name="MC1" />
+    </maintainers>
+    <signals>
+            <signal name="2">
+                    <head name="H2NA"> </head>
+                    <head name="H2NB"> </head>
+                    <head name="H2SA"> </head>
+                    <head name="H2SB"> </head>
+            </signal>
+    </signals>
+
+    <indications>
+            <indication name="K1NW"   byte="0" bit="0"/>
+            <indication name="K1RW"   byte="0" bit="1"/>
+            <indication name="K3NW"   byte="0" bit="2"/>
+            <indication name="K3RW"   byte="0" bit="3"/>
+            <indication name="K3BNW"  byte="0" bit="4"/>
+            <indication name="K3BRW"  byte="0" bit="5"/>
+            <indication name="K5NW"   byte="0" bit="6"/>
+            <indication name="K5RW"   byte="0" bit="7"/>
+
+            <indication name="K1T1"   byte="1" bit="0" />
+            <indication name="K3T1"   byte="1" bit="1" />
+            <indication name="K3T2"   byte="1" bit="2" />
+            <indication name="K5T1"   byte="1" bit="3" />
+            <indication name="KEA1"   byte="1" bit="6" />
+            <indication name="KEA2"   byte="1" bit="7" />
+            <indication name="KWA1"   byte="1" bit="4" />
+            <indication name="KWA2"   byte="1" bit="5" />
+
+            <indication name="K2SG"   byte="2" bit="0" />
+            <indication name="K2NG"   byte="2" bit="1" />
+            <indication name="KT"     byte="2" bit="5" />
+            <indication name="KMC1"   byte="2" bit="6" />
+            <indication name="KPOK"   byte="2" bit="7" />
+
+    </indications>
+
+    <controls>
+            <control name="S1NW"      byte="0" bit="0" />
+            <control name="S1RW"      byte="0" bit="1" />
+            <control name="S3NW"      byte="0" bit="2" />
+            <control name="S3RW"      byte="0" bit="3" />
+            <control name="S3BNW"     byte="0" bit="4" />
+            <control name="S3BRW"     byte="0" bit="5" />
+            <control name="S5NW"      byte="0" bit="6" />
+            <control name="S5RW"      byte="0" bit="7" />
+
+            <control name="S2SG"      byte="1" bit="0" />
+            <control name="S2NG"      byte="1" bit="1" />
+            <control name="S2H"       byte="1" bit="2" />
+            <control name="SMC1"      byte="1" bit="6" />
+            <control name="SPOFF"     byte="1" bit="7" />
+    </controls>
+
+
+    <fields>
+            <input   name="1RW"      byte="0" bit="0" />
+            <input   name="1NW"      byte="0" bit="1" />
+            <input   name="1T1"      byte="0" bit="2" />
+            <output  name="T1"       byte="0" bit="3" />
+
+            <input   name="3RW"      byte="1" bit="0" />
+            <input   name="3NW"      byte="1" bit="1" />
+            <input   name="3T1"      byte="1" bit="2" />
+            <output  name="T3"       byte="1" bit="3" />
+
+            <input   name="3BRW"     byte="1" bit="4" />
+            <input   name="3BNW"     byte="1" bit="5" />
+            <input   name="3BT1"     byte="1" bit="6" />
+            <output  name="T3B"      byte="1" bit="7" />
+
+            <input   name="5RW"      byte="0" bit="4" />
+            <input   name="5NW"      byte="0" bit="5" />
+            <input   name="5T1"      byte="0" bit="6" />
+            <output  name="T5"       byte="0" bit="7" />
+
+            <input   name="EA1"      byte="3" bit="0" />
+            <input   name="EA2"      byte="3" bit="1" />
+            <input   name="WA1"      byte="3" bit="2" />
+            <input   name="WA2"      byte="3" bit="3" />
+            <input   name="HBD"      byte="3" bit="4" />
+            <input   name="POK"      byte="3" bit="5" />
+            <output  name="T"        byte="3" bit="6" />
+
+            <output  name="H2NA">
+                <output  name="H2NA1"     byte="2" bit="0" />
+                <output  name="H2NA2"     byte="2" bit="1" />
+            </output>
+
+            <output  name="H2NB">
+                <output  name="H2NB1"     byte="2" bit="2" />
+                <output  name="H2NB2"     byte="2" bit="3" />
+            </output>
+
+            <output  name="H2SA">
+                <output  name="H2SA1"     byte="2" bit="4" />
+                <output  name="H2SA2"     byte="2" bit="5" />
+            </output>
+
+            <output  name="H2SB">
+                <output  name="H2SB1"     byte="2" bit="6" />
+                <output  name="H2SB2"     byte="2" bit="7" />
+            </output>
+
+            <output  name="MC1"      byte="4" bit="0"  />
+    </fields>
+
+    <expanders>
+        <expander type="PC8574"      address="0"  byte="0" />
+        <expander type="PC8574A"     address="0"  byte="1" />
+        <expander type="PC8574"      address="1"  byte="2" />
+        <expander type="PC8574A"     address="1"  byte="3" />
+        <expander type="ARDIO13_A"   address="0"  byte="4" />
+        <expander type="ARDIO13_B"   address="0"  byte="5" />
+    </expanders>
+</controlpoint>
+
