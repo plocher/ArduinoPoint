@@ -147,13 +147,13 @@
 #define _LEFT(s)     (RRSignalHead::Aspects)sig[(s)].LeftAspect()
 
         </function>
-        <function name="XknockdownSignal">
+        <function name="knockdownSignal">
 int knockdownSignal(int signalName) {
     switch (signalName) {
         case CP_Christopher_SIG2:
             if (_OCCUPIED(CP_Christopher_1T1) ||
                 _OCCUPIED(CP_Christopher_3T1) ||
-                _OCCUPIED(CP_Christopher_3T2) ||
+                _OCCUPIED(CP_Christopher_3BT1) ||
                 _OCCUPIED(CP_Christopher_5T1) ) {
               return sig[CP_Christopher_SIG2].knockdown();
             }
@@ -162,7 +162,7 @@ int knockdownSignal(int signalName) {
 }
 
         </function>
-        <function name="XdetermineAspect">
+        <function name="determineAspect">
 /*
  *  Routes
  *
@@ -208,9 +208,9 @@ int determineAspect(int signalHead) {
                 r2 = _MR(r2, _REVERSE(CP_Christopher_SW3) ? RRSignalHead::APPROACH   : RRSignalHead::STOP);
                 r2 = _MR(r2, _EMPTY  (CP_Christopher_5T1) ? RRSignalHead::CLEAR      : RRSignalHead::STOP);
                 r2 = _MR(r2, _EMPTY  (CP_Christopher_3T1) ? RRSignalHead::CLEAR      : RRSignalHead::STOP);
-                r2 = _MR(r2, _EMPTY  (CP_Christopher_3T2) ? RRSignalHead::CLEAR      : RRSignalHead::STOP);
+                r2 = _MR(r2, _EMPTY  (CP_Christopher_3BT1)? RRSignalHead::CLEAR      : RRSignalHead::STOP);
                 r2 = _MR(r2, _EMPTY  (CP_Christopher_EA1) ? RRSignalHead::CLEAR      : RRSignalHead::STOP);
-                r2 = _MR(r2, _LEFT(CP_Christopher_SIG2);
+                r2 = _MR(r2, _LEFT(CP_Christopher_SIG2));
 
                 //    MT2 S'bound into IND:
                 r3 = RRSignalHead::STOP;
@@ -220,7 +220,7 @@ int determineAspect(int signalHead) {
         case CP_Christopher_H2SA:
                 //    MT2 N'bound on MT2:           if SW3/3B is NORMAL, XXX over RED
                 r1 = _MR(r1, _NORMAL (CP_Christopher_SW3) ? RRSignalHead::CLEAR      : RRSignalHead::STOP);
-                r1 = _MR(r1, _EMPTY  (CP_Christopher_3T2) ? RRSignalHead::CLEAR      : RRSignalHead::STOP);
+                r1 = _MR(r1, _EMPTY  (CP_Christopher_3BT1)? RRSignalHead::CLEAR      : RRSignalHead::STOP);
                 r1 = _MR(r1, _EMPTY  (CP_Christopher_WA1) ? RRSignalHead::CLEAR      : RRSignalHead::STOP);
 
                 //    MT2 N'bound crossover to MT1: if SW3/3B is set to crossover so we get RED over XXX
@@ -234,11 +234,11 @@ int determineAspect(int signalHead) {
                 //    MT2 N'bound crossover to MT1:
                 r2 = _MR(r2, _REVERSE(CP_Christopher_SW3) ? RRSignalHead::APPROACH   : RRSignalHead::STOP);
                 r2 = _MR(r2, _NORMAL (CP_Christopher_SW5) ? RRSignalHead::CLEAR      : RRSignalHead::STOP);
-                r2 = _MR(r2, _EMPTY  (CP_Christopher_3T2) ? RRSignalHead::CLEAR      : RRSignalHead::STOP);
+                r2 = _MR(r2, _EMPTY  (CP_Christopher_3BT1)? RRSignalHead::CLEAR      : RRSignalHead::STOP);
                 r2 = _MR(r2, _EMPTY  (CP_Christopher_3T1) ? RRSignalHead::CLEAR      : RRSignalHead::STOP);
                 r2 = _MR(r2, _EMPTY  (CP_Christopher_5T1) ? RRSignalHead::CLEAR      : RRSignalHead::STOP);
                 r2 = _MR(r2, _EMPTY  (CP_Christopher_WA2) ? RRSignalHead::CLEAR      : RRSignalHead::STOP);
-                r2 = _MR(r2, _RIGHT  (CP_Christopher_SIG2);
+                r2 = _MR(r2, _RIGHT  (CP_Christopher_SIG2));
                 return _LR(r1, r2);
 
         default:
