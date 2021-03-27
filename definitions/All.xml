@@ -1,0 +1,16 @@
+
+<controlpoint name="Decoder" layout="SPCoast" node="0x0">
+    	<depends  name="CP_Watsonville"         xmlfile="cp_watsonville.xml"  />
+        <depends  name="CP_Sargent"             xmlfile="cp_sargent.xml"      />
+        <depends  name="CP_Corporal"            xmlfile="cp_corporal.xml"     />
+        <depends  name="CP_Christopher"         xmlfile="cp_christopher.xml"  />
+        <depends  name="CP_Luchessa"            xmlfile="cp_luchessa.xml"     />
+        <depends  name="GInterchange"           xmlfile="GInterchange.xml"    />
+        <depends  name="GCaltrain"              xmlfile="GCaltrain.xml"       />
+        <depends  name="CP_Michael"             xmlfile="CP_Michael.xml"      />
+
+    <doc>
+        Collection of all controlpoints for MQTT Packet decoder
+    </doc>
+</controlpoint>
+

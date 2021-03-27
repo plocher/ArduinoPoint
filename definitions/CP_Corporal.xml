@@ -1,0 +1,264 @@
+<controlpoint name="CP_Corporal" layout="SPCoast" node="0x0083" FQBN="esp32:esp32:esp32doit-devkit-v1">
+<doc name="1">
+    North end Beet Loader Industry switch, DT1 and DT2 merge, switch and signals
+
+    &lt; Railroad West/North          MP83               Railroad East/South &gt;
+
+                           DERAIL                     /---IND3---DARK Beet Loader1
+                                  \5T1 O-| 4na   M  /
+                        /------ ---+----- ---IND1---+---IND2-----DARK Beet Loader2
+                    1T1/                O-| 2nab   [MC]
+    MT2 &lt;==2SAT= =====+== ============+=== ==1NAT============== =======2NAT=====(&lt;-&gt;)
+                |-O 4sa          3T1/
+    MT1 &gt;==1SAT= ===================/
+                |-O 2sa
+
+    Double track north of Corporal is operated using a "current of traffic" method.
+    This is rule 251 territory.  Trains operate in the same direction on one track and
+    the other direction on the other track.  It is only signaled in one direction
+    on each track.
+
+    SIG2 is for MTx to MT movement and for Beet Loader access to MT2.
+    Since directional current of traffic is in force, SIG 2Sb is not really needed
+    since all reverse running is at restricted speed, alert for turnouts...
+
+    Double track south of Gilroy converges into 1 main track via T#1,
+        Turnout (T#3) off of NB track 1: North end Beet Loader Industry tracks
+        (derail is T#5)
+        Industry track includes internal T#7
+
+    There are four switches in CP Corporal:
+        SW1 for the North industry track
+        SW3 for the Double track to Single track conversion
+        M   for the internal industry turnout, and
+        SW5 for the industry track derail
+
+     Southbound Approach from Christopher - NB (1SA) and SB (2SA) mains
+     Northbound Approach from Sargent (1NAT/2NAT)
+
+</doc>
+<switches>
+        <switch name="1"  trackcircuit="1T1" /> <!-- Industry -->
+        <switch name="3"  trackcircuit="3T1" /> <!-- DT to MT -->
+        <switch name="5"  trackcircuit="5T1" slaveto="1" invert="True"/> <!-- derail disabled when SW1 is diverging -->
+        <switch name="7"  trackcircuit="7T1" /> <!-- Industry internal -->
+
+</switches>
+<trackcircuits>
+        <trackcircuit name="1T1" />
+        <trackcircuit name="3T1" />
+        <trackcircuit name="5T1" />
+        <trackcircuit name="7T1" />
+        <trackcircuit name="1NAT" />
+        <trackcircuit name="2NAT" />
+        <trackcircuit name="1SAT" />
+        <trackcircuit name="2SAT" />
+        <trackcircuit name="IND" />
+        <trackcircuit name="IND1" />
+        <trackcircuit name="IND2" />
+
+</trackcircuits>
+<maintainers>
+        <call         name="MC1" />
+</maintainers>
+
+<signals>
+    <signal name="2" ER="False" FLEET="True" doc="North end of Beet Loader, DT to 1MT and IND">
+        <knockdown>
+            <trackcircuit name="3T1" />
+        </knockdown>
+        <head name="S2NAB" direction="N" doc="Northbound Main Track">
+            <route name="MT-NB" doc="Northbound main track to right hand double track">
+                <switch       name="1"                         position="N"             aspect="CLEAR"/>
+                <switch       name="3"                         position="N"             aspect="CLEAR"/>
+                <trackcircuit name="1T1" />
+                <trackcircuit name="3T1" />
+                <trackcircuit name="2SAT" />
+                <signal       name="2"                         direction="LEFT"/>
+            </route>
+            <route name="MT-SB" doc="Northbound main track to left hand double track against current of traffic">
+                <switch       name="3"                         position="R"             aspect="DIVERGING_RESTRICTING"/>
+                <trackcircuit name="3T1" />
+                <trackcircuit name="1SAT" />
+                <signal       name="2"                         direction="LEFT"/>
+            </route>
+        </head>
+
+        <head name="S2SA" direction="S" doc="Southbound DT (right hand running with current of traffic)">
+            <route name="SB-MT-A" doc="Southbound right hand double track to main track">
+                <switch       name="3"                         position="R"              aspect="ADVANCE_APPROACH" />
+                <trackcircuit name="3T1" />
+                <trackcircuit name="1NAT" />
+                <trackcircuit name="2NAT" />
+                <signal       name="2"                         direction="RIGHT"/>
+            </route>
+            <route name="SB-MT-B" doc="Southbound right hand double track to main track - traffic ahead">
+                <switch       name="3"                         position="R"              aspect="APPROACH" />
+                <trackcircuit name="3T1" />
+                <trackcircuit name="1NAT" />
+                <signal       name="2"                         direction="RIGHT"/>
+            </route>
+        </head>
+    </signal>
+
+    <signal name="4" ER="False" FLEET="True" doc="North end of Beet Loader, IND access to MT2">
+         <head name="S4NA" direction="N" doc="Northbound Industry to MT2">
+            <route name="IND-NB-A" doc="Northbound industry to right hand double track">
+                <switch       name="1"                         position="R"              aspect="APPROACH" />
+                <trackcircuit name="1T1" />
+                <trackcircuit name="5T1" />
+                <trackcircuit name="1SAT" />
+                <signal       name="4"                         direction="LEFT"/>
+            </route>
+            <route name="IND-NB-B" doc="Northbound industry to right hand double track with MT2 occupied">
+                <switch       name="1"                         position="R"              aspect="RESTRICTING" />
+                <trackcircuit name="1T1" />
+                <trackcircuit name="5T1" />
+                <signal       name="4"                         direction="LEFT"/>
+            </route>
+        </head>
+        <head name="S4SA" direction="S" doc="Southbound on Northbound DT, reverse running">
+            <route name="RNB-MT-A" doc="Southbound left hand double track (reverse running) to main track">
+                <switch       name="1"                         position="N"               aspect="DARK" />
+            </route>
+            <route name="SB-IND-A" doc="Southbound left hand double track (reverse running) to industry - lead is occupied">
+                <switch       name="1"                         position="R"               aspect="RESTRICTING" />
+                <trackcircuit name="1T1" />
+                <trackcircuit name="5T1" />
+                <signal       name="4"                         direction="RIGHT"/>
+            </route>
+        </head>
+     </signal>
+</signals>
+
+<indications>
+        <indication name="1NW"   word="0" bit="0"/>
+        <indication name="1RW"   word="0" bit="1"/>
+        <indication name="3NW"   word="0" bit="2"/>
+        <indication name="3RW"   word="0" bit="3"/>
+        <indication name="5NW"   word="0" bit="4"/>
+        <indication name="5RW"   word="0" bit="5"/>
+        <indication name="7NW"   word="0" bit="6" />
+        <indication name="7RW"   word="0" bit="7" />
+
+        <indication name="1T1"   word="1" bit="0" />
+        <indication name="3T1"   word="1" bit="2" />
+        <indication name="5T1"   word="1" bit="4" />
+        <indication name="7T1"   word="1" bit="6" />
+        <indication name="MC1"   word="1" bit="7" />
+
+        <indication name="2SG"   word="2" bit="0" />
+        <indication name="2NG"   word="2" bit="1" />
+        <indication name="2TE"   word="2" bit="2" />
+        <indication name="4SG"   word="2" bit="4" />
+        <indication name="4NG"   word="2" bit="5" />
+        <indication name="4TE"   word="2" bit="6" />
+
+        <indication name="1NAT"  word="3" bit="0" />
+        <indication name="2NAT"  word="3" bit="1" />
+        <indication name="1SAT"  word="3" bit="2" />
+        <indication name="2SAT"  word="3" bit="3" />
+        <indication name="IND"   word="3" bit="4" />
+        <indication name="IND1"  word="3" bit="5" />
+        <indication name="IND2"  word="3" bit="6" />
+</indications>
+
+<controls>
+        <control name="1NW"      word="0" bit="0" />
+        <control name="1RW"      word="0" bit="1" />
+        <control name="3NW"      word="0" bit="2" />
+        <control name="3RW"      word="0" bit="3" />
+        <control name="5NW"      word="0" bit="4" />
+        <control name="5RW"      word="0" bit="5" />
+        <control name="7NW"      word="0" bit="6" />
+        <control name="7RW"      word="0" bit="7" />
+
+        <control name="2SG"      word="1" bit="0" />
+        <control name="2NG"      word="1" bit="1" />
+        <control name="2H"       word="1" bit="2" />
+        <control name="4SG"      word="1" bit="4" />
+        <control name="4NG"      word="1" bit="5" />
+        <control name="4H"       word="1" bit="6" />
+        <control name="MC1"      word="1" bit="7" />
+
+</controls>
+
+<field name="fieldunit">
+        <input   name="1RW"      device="0" bit="0" />
+        <input   name="1NW"      device="0" bit="1" />
+        <input   name="1T2"      device="0" bit="2" />
+        <output  name="T1"       device="0" bit="3" />
+
+        <input   name="3RW"      device="0" bit="4" />
+        <input   name="3NW"      device="0" bit="5" />
+        <input   name="3T2"      device="0" bit="6" />
+        <output  name="T3"       device="0" bit="7" />
+
+        <input   name="5RW"      device="0" bit="8" />
+        <input   name="5NW"      device="0" bit="9" />
+        <input   name="5T2"      device="0" bit="10" />
+        <output  name="T5"       device="0" bit="11" />
+
+        <input   name="7RW"      device="0" bit="12" />
+        <input   name="7NW"      device="0" bit="13" />
+        <input   name="7T2"      device="0" bit="14" />
+        <output  name="T7"       device="0" bit="15" />
+
+        <output  name="MC1"      device="1" bit="0" />
+        <output  name="XO11"     device="1" bit="1" />
+        <output  name="XO12"     device="1" bit="2" />
+        <output  name="XO13"     device="1" bit="3" />
+
+        <input   name="2SAT"     device="1" bit="4" />
+        <input   name="1SAT"     device="1" bit="5" />
+        <input   name="2NAT"     device="1" bit="6" />
+        <input   name="1NAT"     device="1" bit="7" />
+
+        <input   name="IND1"     device="1" bit="8" />
+        <input   name="IND"      device="1" bit="9" />
+        <input   name="XI110"    device="1" bit="10" />
+        <input   name="IND2"     device="1" bit="11" />
+
+        <input   name="1T1"      device="1" bit="12" />
+        <input   name="3T1"      device="1" bit="13" />
+        <input   name="7T1"      device="1" bit="14" />
+        <input   name="5T1"      device="1" bit="15" />
+
+        <signal name="2">
+            <head  name="S2NAB" bits="4"  type="2HeadColorLight">
+                <output  name="S2NA1"     device="2" bit="0" />
+                <output  name="S2NA2"     device="2" bit="1" />
+                <output  name="S2NB1"     device="2" bit="2" />
+                <output  name="S2NB2"     device="2" bit="3" />
+            </head>
+
+            <head  name="S2SA" bits="2"  type="1HeadColorLight">
+                <output  name="S2SA1"     device="2" bit="4" />
+                <output  name="S2SA2"     device="2" bit="5" />
+            </head>
+            <!-- unused
+            <head  name="S2ND" bits="2"  type="1HeadColorLight">
+                <output  name="S2SD1"     device="2" bit="6" />
+                <output  name="S2SD2"     device="2" bit="7" />
+            </head>
+            -->
+        </signal>
+
+        <signal name="4">
+            <head  name="S4NA" bits="2"  type="1HeadColorLight">
+                <output  name="S4NA1"     device="2" bit="8" />
+                <output  name="S4NA2"     device="2" bit="9" />
+            </head>
+            <head  name="S4SA" bits="2"  type="1HeadColorLight">
+                <output  name="S4SA1"     device="2" bit="10" />
+                <output  name="S4SA2"     device="2" bit="11" />
+            </head>
+        </signal>
+
+	    <expander type="MAX7311"      address="0x10"  device="0" size="16" />
+	    <expander type="MCP23017"     address="0x01"  device="1" size="16" />
+	    <expander type="PCA9555"      address="0x02"  device="2" size="16" />
+</field>
+</controlpoint>
+
+

@@ -1,0 +1,55 @@
+<controlpoint name="CTC" layout="spcoast" node="0x69">
+    	<depends  name="CP_Michael"             xmlfile="CP_Michael.xml"  />
+    <doc>
+        CTC machine for Tamien
+
+        6 columns wide / 16"
+
+        Tamien (Michael / Mack / Shoefly
+
+    </doc>
+
+    <field name="ctc" >
+        <lcd name="lcd"     type="LiquidCrystal_I2C" init="(0x27, 20, 2)" display="20,2" device="2" />
+
+        <ctcpanel  name="Tamien">
+            <controlpoint name="CP_Michael">
+                <column name="1"  device="3" hwversion="1.0">
+                    <switch name=":1"     label="451"    />
+                </column>
+                <column name="2"  device="4" hwversion="1.0">
+                    <switch name=":3"     label="453" />
+                    <code   name="code" />
+                </column>
+                
+            </controlpoint>
+            <controlpoint  name="CP_Mack">
+                <column name="3"  device="5" hwversion="1.0">
+                    <lock   name=":1"     label="441"/>
+                </column>
+                <column name="4"  device="6" hwversion="1.0">
+                    <lock   name=":3"     label="443"/>
+                </column>
+                <column name="5"  device="7" hwversion="1.0">
+                    <lock   name=":3"     label="445"/>
+                </column>
+                <column name="6"  device="8" hwversion="1.0">
+                    <lock   name=":3"     label="447"/>
+                    <code   name="code" />
+                </column>
+            </controlpoint>
+        </ctcpanel>
+
+	    <expander type="WEMOS_MATRIX" address="-1" device="0" />
+	    <expander type="WEMOS"        address="-1" device="1" />
+        <expander type="I2CLCD"       address="7"  device="2" /> <!-- LED Backpack -->
+
+        <expander type="PCF8574"      address="0"   device="3"   /> <!-- Column  1   - Michael - Ace Pocket/Station SidingGilro -->
+	    <expander type="PCF8574A"     address="0"   device="4"   /> <!-- Column  2   - Michael - UP - JPB Xover -->
+        <expander type="PCF8574"      address="1"   device="5"   /> <!-- Column  3   - Mack - Station Siding -->
+	    <expander type="PCF8574A"     address="1"   device="6"   /> <!-- Column  4   - Mack - JPB - UP Xover -->
+        <expander type="PCF8574"      address="2"   device="7"   /> <!-- Column  5   - Mack JPB Shoefly -->
+	    <expander type="PCF8574A"     address="2"   device="8"   /> <!-- Column  6   - Mack UP  Shoefly -->
+</field>
+</controlpoint>
+

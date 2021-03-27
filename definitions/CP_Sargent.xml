@@ -1,0 +1,97 @@
+<controlpoint layout="SPCoast" name="CP_Sargent" node="0x84"  board="wemos">
+    <doc>
+    The south end of the beet loading facility.
+
+     &lt; Railroad West/North                             Railroad East/South &gt;
+
+
+    --DARK Beet Loader1-- ---\
+                              \
+    --DARK Beet Loader2-- -----3--- ---2SA-- -----\
+                                             |-2sb  \       2Nab---|
+     ===(aka CP_Corporal:2NA)=====*=====1SA== =======1============= ----- Watsonville Staging ------
+                                (HBD)        |-2sa   1T1
+    (MC)
+
+    The staging yard is served by a single track with a switch for Arrival or Departure
+    (via CP Sargent); the Arrival/Departure switch determines the flow of traffic.
+
+    There are two turnouts in CP Sargent:
+        SW1 for the south end beet loader mainline connection,
+        SW3 for the turnout in the industrial (beet loader) trackage
+
+    There are track circuits on the main, siding and staging that are reported back to dispatch:
+
+        1T1    current detector for SW1
+        1SA    approach block on mainline in front of the signal,
+        2SA    on the beet industry track approaching the switch,
+
+    There will also be a (TBD) hot box detector on the main just north of turnout SW1
+    There are simple signals controlling everything (2Sa, 2Sb, 2Nab), and
+    finally, there is a maintainer call light (MC1).
+
+    </doc>
+
+
+<switches>
+        <switch name="1"  normal="1NW" reverse="1RW" motor="T1"  trackcircuit="1T1" />
+        <switch name="3"  normal="3NW" reverse="3RW" motor="T3"  trackcircuit="3T1" />
+</switches>
+
+<trackcircuits>
+        <trackcircuit name="1T1" />
+        <trackcircuit name="1SA" />  <!-- aka Christopher EA1 -->
+        <trackcircuit name="2SA" />  <!-- Industry lead -->
+        <trackcircuit name="HBD" />  <!-- Hotbox Detector  - TBD - -->
+</trackcircuits>
+
+<maintainers>
+        <call         name="MC1" />
+</maintainers>
+
+<signals>
+</signals>
+
+<controls>
+        <control      name="1NW"   word="0" bit="0" /> <!-- sWitch 1 set to Normal -->
+        <control      name="1RW"   word="0" bit="1" /> <!-- sWitch 1 set to Reverse -->
+        <control      name="3NW"   word="0" bit="2" /> <!-- sWitch 3 set to Normal -->
+        <control      name="3RW"   word="0" bit="3" /> <!-- sWitch 3 set to Reverse -->
+        <control      name="MC1"   word="0" bit="7" /> <!-- Maintainer Call is lit/active -->
+</controls>
+
+<indications>
+        <indication   name="1NW"   word="0" bit="0" /> <!-- sWitch 1 is set to Normal  -->
+        <indication   name="1RW"   word="0" bit="1" /> <!-- sWitch 1 is set to Reverse (only 1 active at a time) -->
+        <indication   name="3NW"   word="0" bit="2" /> <!-- sWitch 1 is set to Normal  -->
+        <indication   name="3RW"   word="0" bit="3" /> <!-- sWitch 1 is set to Reverse (only 1 active at a time) -->
+        <indication   name="1T1"   word="0" bit="4" /> <!-- Switch 1 Track circuit 1 -->
+        <indication   name="1T3"   word="0" bit="5" /> <!-- Switch 1 Track circuit 1 -->
+        <indication   name="HBD"   word="0" bit="6" /> <!-- Hot Box detected -->
+        <indication   name="MC1"   word="0" bit="7" /> <!-- Maintainer Call repeater -->
+
+        <indication   name="1SA"   word="1" bit="0" /> <!-- Mainline Approach track adjacent to signal 2S-->
+        <indication   name="2SA"   word="1" bit="1" /> <!-- INDustry track lead -->
+</indications>
+
+
+<field name="fieldunit">
+        <!-- switch name="1" device="0" bits="0-3"/> -->
+        <input   name="1RW"      device="0" bit="0" />
+        <input   name="1NW"      device="0" bit="1" />
+        <input   name="1T1"      device="0" bit="2" />
+        <output  name="T1"       device="0" bit="3" />
+
+            <!-- switch name="1" device="0" bits="4-7"/> -->
+        <input   name="3RW"      device="0" bit="4" />
+        <input   name="3NW"      device="0" bit="5" />
+        <input   name="3T1"      device="0" bit="6" />
+        <output  name="T3"       device="0" bit="7" />
+
+        <input   name="1SA"      device="0" bit="8" /> <!-- West - Mainline Approach -->
+        <input   name="2SA"      device="0" bit="9" /> <!-- West - to/from Industry -->
+
+
+        <expander type="MAX7311"      address="0x10"   device="0" size="16" />
+</field>
+</controlpoint>

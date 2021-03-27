@@ -1,0 +1,399 @@
+<controlpoint name="CP_Michael" layout="SPCoast" node="0x49">
+<depends      name="GInterchange"     xmlfile="GInterchange.xml"   />
+<depends      name="GGaltrain"        xmlfile="GCaltrain.xml"      />
+
+<doc>
+    CP Michael
+
+    &lt; Railroad West/North                             Railroad East/South &gt;
+
+
+                                          oo---| 2N
+    JPB MT1  ======TK1======= ========+======== ------ CP_GilroyInterchange:2SA  UP MT1 to Gilroy Interchange
+                         2S |---oo  / A
+                               1T1 / 1T2
+                                B /       oo---| 4N
+    JPB MT2  ======TK2====== ====+==== ====+=== ---- CP_GilroyCaltrain:1SA     Caltrain MT1 to Gilroy Depot
+                         4S |---oo        / A
+                                     3T1 / 3T2
+                                      B / oo---| 6N
+    Tamien   ======TK3====== ==========+======= ==ACE==|  ACE staging
+                         6S |---oo
+
+
+    Tamien Station South
+
+    UP main and JPB main connect with a crossover
+    South station track diverges from JPB main
+    ACE staging/layover off of station track
+
+</doc>
+<switches>
+        <switch name="1A"  trackcircuit="1T1" />
+        <switch name="1B"  trackcircuit="1T2" slaveto="1A" invert="False"/> <!-- crossover -->
+        <switch name="3A"  trackcircuit="3T1" />
+        <switch name="3B"  trackcircuit="3T2" slaveto="3A" invert="False"/> <!-- crossover -->
+
+</switches>
+<trackcircuits>
+        <trackcircuit name="1T1" />
+        <trackcircuit name="1T2" />
+        <trackcircuit name="3T1" />
+        <trackcircuit name="3T2" />
+        <trackcircuit name="ACE" />
+        <trackcircuit name="TK1" />
+        <trackcircuit name="TK2" />
+        <trackcircuit name="TK3" />
+</trackcircuits>
+
+    <signals>
+        <signal name="2" ER="True" FLEET="True">    <!--    UP MT  -->
+			<knockdown>
+		        <trackcircuit name="1T1"  />
+			</knockdown>
+
+            <head name="H2NA" direction="N"> 	<!--    UP MT N'bound  -->
+				<route name="UP-UP">
+                    <switch       name="1A"                       position="N" />
+                    <trackcircuit name="1T1" />
+                    <trackcircuit name="TK1" />
+                    <signal       name="2"                        direction="LEFT"/>
+				</route>
+			</head>
+            <head name="H2NB" direction="N"> 	<!--    UP MT N'bound to JPB MT1  -->
+                <!--
+                Cross OK only when alternate JPBMT1 route clear, or when Sig4@STOP
+                -->
+                <route name="UP-JPB1">
+					<switch       name="1A"                        position="R" />
+					<switch       name="1B"                        position="R" />
+					<switch       name="3A"                        position="R" />
+					<switch       name="3B"                        position="R" />
+			        <trackcircuit name="1T1"  />
+			        <trackcircuit name="1T2" />
+                    <trackcircuit name="TK2" />
+                    <signal       name="2"                         direction="LEFT"/>
+				</route>
+                <route name="UP-JPB1-C">    <!-- with sig4 at STOP... -->
+					<switch       name="1A"                        position="R" />
+					<switch       name="1B"                        position="R" />
+			        <trackcircuit name="1T1"  />
+			        <trackcircuit name="1T2" />
+                    <trackcircuit name="TK2" />
+                    <signal       name="2"                         direction="LEFT"/>
+                    <signal       name="4"                         direction="STOP"/>
+				</route>
+            </head>
+
+            <head name="H2SA" direction="S">  <!--    UP MT S'bound upper head  -->
+				<route name="MT-MT">	      <!-- Straight through on UP MT  -->
+					<switch       name="1A"                        position="N" />
+			        <trackcircuit name="1T1"  />
+			        <trackcircuit name="GInterchange:1SAK"  />
+                    <signal       name="2"                         direction="RIGHT"/>
+				</route>
+				<route name="MT-MTB">	      <!-- Straight through on UP MT  with occupancy at Interchange-->
+					<switch       name="1A"                        position="N"     aspect="RESTRICTING" />
+			        <trackcircuit name="1T1"  />
+			        <trackcircuit name="GInterchange:1SAK"  />
+                    <signal       name="2"                         direction="RIGHT"/>
+				</route>
+            </head>
+
+			<head name="H2SB" direction="S"> 	 <!--     UP MT1 S'bound into UP MT1, lower head  -->
+                 <!--    always red    -->
+			</head>
+        </signal>
+
+        <signal name="4" ER="True" FLEET="True">  <!--    JPB MT1    -->
+			<knockdown>
+		        <trackcircuit name="1T2"  />
+		        <trackcircuit name="3T1"  />
+			</knockdown>
+
+            <head name="H4NA" direction="N"> 	<!--    JPB MT1 N'bound  -->
+				<route name="JPB1-JPB1">
+                    <switch       name="1B"                       position="N" />
+                    <switch       name="3A"                       position="N" />
+                    <trackcircuit name="1T2" />
+                    <trackcircuit name="3T1" />
+                    <trackcircuit name="TK2" />
+                    <signal       name="4"                        direction="LEFT"/>
+				</route>
+			</head>
+            <head name="H4NB" direction="N"> 	<!--    JPB MT1 N'bound to JPB MT2  -->
+                <route name="JPB1-JPB2B">
+					<switch       name="3A"                        position="R" />
+					<switch       name="3B"                        position="R" />
+			        <trackcircuit name="3T1"  />
+			        <trackcircuit name="3T2" />
+                    <trackcircuit name="TK3" />
+                    <signal       name="4"                         direction="LEFT"/>
+				</route>
+
+            </head>
+            <head name="H4SA" direction="S">  <!--    JPB MT1 S'bound upper head  -->
+				<route name="JPB1-JPB1">	        <!-- Straight through on JPB MT1  -->
+					<switch       name="1B"                        position="N" />
+					<switch       name="3A"                        position="N" />
+                    <trackcircuit name="1T2" />
+                    <trackcircuit name="3T1" />
+			        <trackcircuit name="GCaltrain:1SAK"  />
+                    <signal       name="4"                         direction="RIGHT"/>
+				</route>
+
+            </head>
+			<head name="H4SB" direction="S"> 	 <!-- JPB MT1 S'bound into UP MT1, lower head  -->
+                <route name="JPB1-UPMT1">
+					<switch       name="1B"                        position="R" />
+					<switch       name="1A"                        position="R" />
+                    <trackcircuit name="1T1" />
+                    <trackcircuit name="1T2" />
+                	<trackcircuit name="GInterchange:1SAK"  />
+                    <signal       name="2"                         direction="STOP"/>
+                    <signal       name="4"                         direction="RIGHT"/>
+                </route>
+			</head>
+        </signal>
+
+        <signal name="6" ER="True" FLEET="True">  <!--    JPB MT2    -->
+			<knockdown>
+		        <trackcircuit name="3T2"  />
+			</knockdown>
+
+            <head name="H6NA" direction="N"> 	<!--    ACE Pocket to Tamien TK3 N'bound  -->
+				<route name="ACE-JPB2">
+                    <switch       name="3B"                       position="N" />
+                    <trackcircuit name="3T2" />
+                    <trackcircuit name="TK3" />
+                    <signal       name="6"                        direction="LEFT"/>
+				</route>
+			</head>
+            <head name="H6NB" direction="N"> 	<!--    JPB MT1 N'bound to JPB MT2  -->
+                <!-- Always red -->
+            </head>
+            <head name="H6SA" direction="S">  <!--    JPB MT2 S'bound upper head  -->
+				<route name="JPB2-ACE">	        <!-- Straight through on JPB MT2 to ACE Pocket  -->
+					<switch       name="3B"                        position="N" />
+                    <trackcircuit name="3T2" />
+                    <trackcircuit name="ACE" />
+                    <signal       name="6"                         direction="RIGHT"/>
+				</route>
+				<route name="JPB2-ACE">	        <!-- Straight through on JPB MT2 to occupied ACE Pocket  -->
+					<switch       name="3B"                        position="N"      aspect="RESTRICTING" />
+                    <trackcircuit name="3T2" />
+                    <signal       name="6"                         direction="RIGHT"/>
+				</route>
+            </head>
+			<head name="H6SB" direction="S"> 	 <!-- JPB MT2 S'bound into JPB MT1, lower head  -->
+                <route name="JPB2-JPB1" >
+					<switch       name="3B"                        position="R" />
+					<switch       name="3A"                        position="R" />
+                    <trackcircuit name="3T1" />
+                    <trackcircuit name="3T2" />
+                	<trackcircuit name="GCaltrain:1SAK"  />
+                    <signal       name="4"                         direction="STOP"/>
+                    <signal       name="6"                         direction="RIGHT"/>
+                </route>
+                <route name="JPB2-JPB1-B" >
+					<switch       name="1B"                        position="R" />
+					<switch       name="1A"                        position="R" />
+					<switch       name="3B"                        position="R" />
+					<switch       name="3A"                        position="R" />
+                    <trackcircuit name="3T1" />
+                    <trackcircuit name="3T2" />
+                	<trackcircuit name="GCaltrain:1SAK"  />
+                    <signal       name="6"                         direction="RIGHT"/>
+                </route>
+			</head>
+        </signal>
+</signals>
+
+<indications>
+        <indication name="1ANW"  word="0" bit="0"/>
+        <indication name="1ARW"  word="0" bit="1"/>
+        <indication name="1BNW"  word="0" bit="2"/>
+        <indication name="1BRW"  word="0" bit="3"/>
+        <indication name="3ANW"  word="0" bit="4"/>
+        <indication name="3ARW"  word="0" bit="5"/>
+        <indication name="3BNW"  word="0" bit="6"/>
+        <indication name="3BRW"  word="0" bit="7"/>
+
+        <indication name="1T1"   word="1" bit="0" />
+        <indication name="1T2"   word="1" bit="1" />
+        <indication name="3T1"   word="1" bit="2" />
+        <indication name="3T2"   word="1" bit="3" />
+
+        <indication name="ACE"   word="1" bit="4" />
+        <indication name="TK1"   word="1" bit="5" />
+        <indication name="TK2"   word="1" bit="6" />
+        <indication name="TK3"   word="1" bit="7" />
+
+        <indication name="2SG"   word="2" bit="0" />
+        <indication name="2NG"   word="2" bit="1" />
+        <indication name="2TE"   word="2" bit="2" />
+        <indication name="MC1"   word="2" bit="7" />
+
+        <indication name="4SG"   word="3" bit="0" />
+        <indication name="4NG"   word="3" bit="1" />
+        <indication name="4TE"   word="3" bit="2" />
+
+        <indication name="6SG"   word="4" bit="0" />
+        <indication name="6NG"   word="4" bit="1" />
+        <indication name="6TE"   word="4" bit="2" />
+</indications>
+
+<controls>
+        <control name="1ANW"     word="0" bit="0" />
+        <control name="1ARW"     word="0" bit="1" />
+        <control name="1BNW"     word="0" bit="2" />
+        <control name="1BRW"     word="0" bit="3" />
+        <control name="3ANW"     word="0" bit="4" />
+        <control name="3ARW"     word="0" bit="5" />
+        <control name="3BNW"     word="0" bit="6" />
+        <control name="3BRW"     word="0" bit="7" />
+
+        <control name="2SG"      word="1" bit="0" />
+        <control name="2NG"      word="1" bit="1" />
+        <control name="2H"       word="1" bit="2" />
+        <control name="MC1"      word="1" bit="7" />
+
+        <control name="4SG"      word="2" bit="0" />
+        <control name="4NG"      word="2" bit="1" />
+        <control name="4H"       word="2" bit="2" />
+
+        <control name="6SG"      word="3" bit="0" />
+        <control name="6NG"      word="3" bit="1" />
+        <control name="6H"       word="3" bit="2" />
+</controls>
+
+<field name="fieldunit">
+        <input   name="1ARW"     device="0" bit="0" />  <!-- Turtle -->
+        <input   name="1ANW"     device="0" bit="1" />
+        <input   name="1T1"      device="0" bit="2" />
+        <output  name="T1A"      device="0" bit="3" />
+
+        <input   name="1BRW"     device="0" bit="4" />  <!-- Turtle -->
+        <input   name="1BNW"     device="0" bit="5" />
+        <input   name="1T2"      device="0" bit="6" />
+        <output  name="T1B"      device="0" bit="7" />
+
+        <input   name="3ARW"     device="1" bit="0" />  <!-- Turtle -->
+        <input   name="3ANW"     device="1" bit="1" />
+        <input   name="3T1"      device="1" bit="2" />
+        <output  name="T3A"      device="1" bit="3" />
+
+        <input   name="3BRW"     device="1" bit="4" />  <!-- Turtle -->
+        <input   name="3BNW"     device="1" bit="5" />
+        <input   name="3T2"      device="1" bit="6" />
+        <output  name="T3B"      device="1" bit="7" />
+
+        <input   name="ACE"      device="2" bit="0" />  <!-- Detector 4 -->
+        <input   name="TK1"      device="2" bit="1" />
+        <input   name="TK2"      device="2" bit="2" />
+        <input   name="TK3"      device="2" bit="3" />
+
+        <output  name="MC1"      device="2" bit="4"  /> <!-- Outputs... -->
+        <output  name="XX1"      device="2" bit="5"  />
+        <output  name="XX2"      device="2" bit="6"  />
+        <output  name="XX3"      device="2" bit="7"  />
+
+        <output  name="XX4"      device="3" bit="0"  /> <!-- Outputs... -->
+        <output  name="XX5"      device="3" bit="1"  />
+        <output  name="XX6"      device="3" bit="2"  />
+        <output  name="XX7"      device="3" bit="3"  />
+
+        <output  name="XX8"      device="3" bit="4"  /> <!-- Outputs... -->
+        <output  name="XX9"      device="3" bit="5"  />
+        <output  name="X10"      device="3" bit="6"  />
+        <output  name="X11"      device="3" bit="7"  />
+
+        <signal name="2">
+            <head  name="H2NA" >
+                <output  name="H2NA1"     device="4" bit="0" />
+                <output  name="H2NA2"     device="4" bit="1" />
+            </head>
+            <head  name="H2NB" >
+                <output  name="H2NB1"     device="4" bit="2" />
+                <output  name="H2NB2"     device="4" bit="3" />
+            </head>
+            <head  name="H2SA" >
+                <output  name="H2SA1"     device="4" bit="4" />
+                <output  name="H2SA2"     device="4" bit="5" />
+            </head>
+            <head  name="H2SB" >
+                <output  name="H2SB1"     device="4" bit="6" />
+                <output  name="H2SB2"     device="4" bit="7" />
+            </head>
+        </signal>
+
+        <signal name="4">
+            <head  name="H4NA" >
+                <output  name="H4NA1"     device="5" bit="0" />
+                <output  name="H4NA2"     device="5" bit="1" />
+            </head>
+            <head  name="H4NB" >
+                <output  name="H4NB1"     device="5" bit="2" />
+                <output  name="H4NB2"     device="5" bit="3" />
+            </head>
+            <head  name="H4SA" >
+                <output  name="H4SA1"     device="5" bit="4" />
+                <output  name="H4SA2"     device="5" bit="5" />
+            </head>
+            <head  name="H4SB" >
+                <output  name="H4SB1"     device="5" bit="6" />
+                <output  name="H4SB2"     device="5" bit="7" />
+            </head>
+        </signal>
+
+        <signal name="6">
+            <head  name="H6NA" >
+                <output  name="H6NA1"     device="6" bit="0" />
+                <output  name="H6NA2"     device="6" bit="1" />
+            </head>
+            <head  name="H6NB" >
+                <output  name="H6NB1"     device="6" bit="2" />
+                <output  name="H6NB2"     device="6" bit="3" />
+            </head>
+            <head  name="H6SA" >
+                <output  name="H6SA1"     device="6" bit="4" />
+                <output  name="H6SA2"     device="6" bit="5" />
+            </head>
+            <head  name="H6SB" >
+                <output  name="H6SB1"     device="6" bit="6" />
+                <output  name="H6SB2"     device="6" bit="7" />
+            </head>
+        </signal>
+        <!--                              8      0  unused -->
+        <matrix  name="CODE" type="codeline">
+            <output  name="CL_DT" device="8" bit="1"  type="DATA"   />  <!-- names are special... -->
+            <output  name="CL_CE" device="8" bit="2"  type="CE"     />  <!-- names are special... -->
+            <output  name="CL_CL" device="8" bit="3"  type="CLOCK"  />  <!-- names are special... -->
+
+            <display name="controls"     order="0" />  <!-- names are special... -->
+            <display name="indications"  order="1" />  <!-- names are special... -->
+
+        </matrix>
+
+
+   <!-- <lcd name="lcd"     type="LiquidTWI" init="(7)" device="6" /> AdaFruit's version -->
+        <lcd name="lcd"     type="LiquidCrystal_I2C" init="(0x27, 20, 4)" display="20x4" device="10" />
+
+
+	    <expander device="0"  type="PCF8574"      address="0"  />  <!-- SW1A, SW1B -->
+	    <expander device="1"  type="PCF8574A"     address="0"  />  <!-- SW3A, SW3B -->
+	    <expander device="2"  type="PCF8574"      address="1"  />  <!-- Detector, MC -->
+	    <expander device="3"  type="PCF8574A"     address="1"  />  <!-- -na- -->
+	    <expander device="4"  type="PCF8574"      address="1"  />  <!-- SIG2 -->
+	    <expander device="5"  type="PCF8574A"     address="1"  />  <!-- SIG4 -->
+	    <expander device="6"  type="PCF8574"      address="1"  />  <!-- SIG6 -->
+	    <expander device="7"  type="PCF8574A"     address="1"  />  <!-- -na- -->
+	    <expander device="8"  type="WEMOS_MATRIX" address="-1" />  <!-- Matrix -->
+	    <expander device="9"  type="WEMOS"        address="-1" />  <!-- -na- -->
+        <expander device="10" type="I2CLCD"       address="7"   /> <!-- LED Backpack -->
+
+</field>
+
+</controlpoint>
+
+

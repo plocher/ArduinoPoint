@@ -1,0 +1,721 @@
+<controlpoint name="CP_Watsonville" layout="SPCoast" node="0x97"  board="wemos">
+    <depends  name="CP_Sargent"             xmlfile="cp_sargent.xml"      />
+    <doc name="1">
+        Watsonville is the staging "yard" at the south end of layout.
+        The staging yard is served by a single track with a switch for Arrival or Departure
+        traffic to/from CP Sargent; the Arrival/Departure switch determines the flow of traffic.
+
+        One arrives into the yard by way of the arrival lead and a reverse loop
+        that takes the train to the southernmost point of the layout into the arrival ladder.
+
+        Except for Yard Tracks 1 and 2, the yard leads are all approximately 16' long.  Y1 is about 8', and it
+        merges with Y2 about midway along Y2's length.  (Y1, Y2 'A' and Y2 'B' are intended to hold short
+        locals in a serial staged manner.
+
+        All yard tracks contain entry, midway and end section detectors, with optical detection near the end of
+        the end section.  There are isolation sections before each departure ladder switch that are de-energized
+        when the ladder is not aligned for that yard track.
+
+        There are no Maintainer Call devices.
+
+        There is one set of Signals controlling yard entry/exit
+           2sA - Mainline before Sargent industry turnout
+           2sB - Beet Loader Industry spur
+
+           2nC - .
+
+
+		     &lt; Railroad West/North                                          Railroad East/South &gt;
+	   |-2sDC 
+		-----\       Departure            CP Watsonville
+	   |-2sBA \          2nCD-|       DLT           Y1e/d    Y1c     Y1b
+		======== ==1===out==== =======@==3======== ==@=R= ===@=== ===@=== =\                        Y1
+		            \                     \                                 \       Y2a
+		             \==in==== ==\         5====== ==@=R= ===@=== ===@=== ===25== ==@== ==\         Y2
+		                 2nAB-|   \         7===== ==@=R= ===@=== ===@================= ===23       Y3
+		             Arrival       \         9==== ==@=R= ===@=== ===@================= ====21      Y4
+		                            \        11=== ==@=R= ===@=== ===@================= =====19     Y5
+		                             \        13== ==@=R= ===@=== ===@================= ======17    Y6
+		                              \         \= ==@=R= ===@=== ===@================= =======15=\ Y7
+		                               \     2nAB-|                                                |
+		                                \=============@================================ ===@======/
+		                                             AT (auto rev)                        ALT
+
+    </doc>
+
+    <customControlHandler>
+    // determine relay settings from turnout choices
+    int dr = 0, ar=0;
+#define N Switch::NORMAL
+#define R Switch::REVERSE
+
+#define S1(n)  sw[CP_Watsonville_SW1].isC(n)
+#define S3(n)  sw[CP_Watsonville_SW3].isC(n)
+#define S5(n)  sw[CP_Watsonville_SW5].isC(n)
+#define S7(n)  sw[CP_Watsonville_SW7].isC(n)
+#define S9(n)  sw[CP_Watsonville_SW9].isC(n)
+#define S11(n) sw[CP_Watsonville_SW11].isC(n)
+#define S13(n) sw[CP_Watsonville_SW13].isC(n)
+#define S15(n) sw[CP_Watsonville_SW15].isC(n)
+#define S17(n) sw[CP_Watsonville_SW17].isC(n)
+#define S19(n) sw[CP_Watsonville_SW19].isC(n)
+#define S21(n) sw[CP_Watsonville_SW21].isC(n)
+#define S23(n) sw[CP_Watsonville_SW23].isC(n)
+#define S25(n) sw[CP_Watsonville_SW25].isC(n)
+
+    if   (S1(R)){                                                            dr=1; } // 1
+    else if (S1(N)  and S3(R)){                                              dr=2; } // 2
+    else if (S1(N)  and S3(N)  and S5(R)){                                   dr=3; } // 3
+    else if (S1(N)  and S3(N)  and S5(N)  and S7(R)){                        dr=4; } // 4
+    else if (S1(N)  and S3(N)  and S5(N)  and S7(N)  and S9(R)){             dr=5; } // 5
+    else if (S1(N)  and S3(N)  and S5(N)  and S7(N)  and S9(N)  and S11(R)){ dr=6; } // 6
+    else if (S1(N)  and S3(N)  and S5(N)  and S7(N)  and S9(N)  and S11(N)){ dr=7; } // 7
+
+    if   (S13(N) and S15(N) and S17(N) and S19(N) and S21(N) and S23(R)){    ar=1; }
+    else if (S13(N) and S15(N) and S17(N) and S19(N) and S21(N) and S23(N)){ ar=2; }
+    else if (S13(N) and S15(N) and S17(N) and S19(N) and S21(R)){            ar=3; }
+    else if (S13(N) and S15(N) and S17(N) and S19(R)){                       ar=4; }
+    else if (S13(N) and S15(N) and S17(R)){                                  ar=5; }
+    else if (S13(N) and S15(R)){                                             ar=6; }
+    else if (S13(R)){                                                        ar=7; }
+    
+    mc[CP_Watsonville_K7].set(Maintainer::ON);
+
+    boolean sat, sdt;
+    switch (dr) {
+    case 1: track[CP_Watsonville_SDT].setSlave(    "1BT,1CT,1DT,1ET"); 
+        mc[CP_Watsonville_K0].set(Maintainer::ON);
+        mc[CP_Watsonville_K1].set(Maintainer::OFF);
+        mc[CP_Watsonville_K2].set(Maintainer::OFF);
+        mc[CP_Watsonville_K3].set(Maintainer::OFF);
+        mc[CP_Watsonville_K4].set(Maintainer::OFF);
+        mc[CP_Watsonville_K5].set(Maintainer::OFF);
+        mc[CP_Watsonville_K6].set(Maintainer::OFF);
+    break;
+    case 2: track[CP_Watsonville_SDT].setSlave("2AT,2BT,2CT,2DT,2ET"); 
+        mc[CP_Watsonville_K0].set(Maintainer::OFF);
+        mc[CP_Watsonville_K1].set(Maintainer::ON);
+        mc[CP_Watsonville_K2].set(Maintainer::OFF);
+        mc[CP_Watsonville_K3].set(Maintainer::OFF);
+        mc[CP_Watsonville_K4].set(Maintainer::OFF);
+        mc[CP_Watsonville_K5].set(Maintainer::OFF);
+        mc[CP_Watsonville_K6].set(Maintainer::OFF);
+    break;
+    case 3: track[CP_Watsonville_SDT].setSlave(    "3BT,3CT,3DT,3ET"); 
+        mc[CP_Watsonville_K0].set(Maintainer::OFF);
+        mc[CP_Watsonville_K1].set(Maintainer::OFF);
+        mc[CP_Watsonville_K2].set(Maintainer::ON);
+        mc[CP_Watsonville_K3].set(Maintainer::OFF);
+        mc[CP_Watsonville_K4].set(Maintainer::OFF);
+        mc[CP_Watsonville_K5].set(Maintainer::OFF);
+        mc[CP_Watsonville_K6].set(Maintainer::OFF);
+    break;
+    case 4: track[CP_Watsonville_SDT].setSlave(    "4BT,4CT,4DT,4ET"); 
+        mc[CP_Watsonville_K0].set(Maintainer::OFF);
+        mc[CP_Watsonville_K1].set(Maintainer::OFF);
+        mc[CP_Watsonville_K2].set(Maintainer::OFF);
+        mc[CP_Watsonville_K3].set(Maintainer::ON);
+        mc[CP_Watsonville_K4].set(Maintainer::OFF);
+        mc[CP_Watsonville_K5].set(Maintainer::OFF);
+        mc[CP_Watsonville_K6].set(Maintainer::OFF);
+    break;
+    case 5: track[CP_Watsonville_SDT].setSlave(    "5BT,5CT,5DT,5ET"); 
+        mc[CP_Watsonville_K0].set(Maintainer::OFF);
+        mc[CP_Watsonville_K1].set(Maintainer::OFF);
+        mc[CP_Watsonville_K2].set(Maintainer::OFF);
+        mc[CP_Watsonville_K3].set(Maintainer::OFF);
+        mc[CP_Watsonville_K4].set(Maintainer::ON);
+        mc[CP_Watsonville_K5].set(Maintainer::OFF);
+        mc[CP_Watsonville_K6].set(Maintainer::OFF);
+    break;
+    case 6: track[CP_Watsonville_SDT].setSlave(    "6BT,6CT,6DT,6ET"); 
+        mc[CP_Watsonville_K0].set(Maintainer::OFF);
+        mc[CP_Watsonville_K1].set(Maintainer::OFF);
+        mc[CP_Watsonville_K2].set(Maintainer::OFF);
+        mc[CP_Watsonville_K3].set(Maintainer::OFF);
+        mc[CP_Watsonville_K4].set(Maintainer::OFF);
+        mc[CP_Watsonville_K5].set(Maintainer::ON);
+        mc[CP_Watsonville_K6].set(Maintainer::OFF);
+    break;
+    case 7: track[CP_Watsonville_SDT].setSlave(    "7BT,7CT,7DT,7ET"); 
+        mc[CP_Watsonville_K0].set(Maintainer::OFF);
+        mc[CP_Watsonville_K1].set(Maintainer::OFF);
+        mc[CP_Watsonville_K2].set(Maintainer::OFF);
+        mc[CP_Watsonville_K3].set(Maintainer::OFF);
+        mc[CP_Watsonville_K4].set(Maintainer::OFF);
+        mc[CP_Watsonville_K5].set(Maintainer::OFF);
+        mc[CP_Watsonville_K6].set(Maintainer::ON);
+    break;
+    default: track[CP_Watsonville_SDT].setSlave("DL"); break;
+    }
+
+    switch (ar) {
+    case 1: track[CP_Watsonville_SAT].setSlave(    "1BT,1CT,1DT,1ET"); break;
+    case 2: track[CP_Watsonville_SAT].setSlave("2AT,2BT,2CT,2DT,2ET"); break;
+    case 3: track[CP_Watsonville_SAT].setSlave(    "3BT,3CT,3DT,3ET"); break;
+    case 4: track[CP_Watsonville_SAT].setSlave(    "4BT,4CT,4DT,4ET"); break;
+    case 5: track[CP_Watsonville_SAT].setSlave(    "5BT,5CT,5DT,5ET"); break;
+    case 6: track[CP_Watsonville_SAT].setSlave(    "6BT,6CT,6DT,6ET"); break;
+    case 7: track[CP_Watsonville_SAT].setSlave(    "7BT,7CT,7DT,7ET"); break;
+    default: track[CP_Watsonville_SAT].setSlave("AL"); break;
+    }
+    </customControlHandler>
+
+    <!--
+    Logical appliances (Switches, Track Circuits...)
+
+    List each appliance found in the control point
+
+    for remote appliances (proxies for indication packet-reported state elsewhere), use the
+    appropriate "S"XXX indication names (e.g., CP_Watsonville:AL's "I"-name is CP_Watsonville_ALK)
+    -->
+
+    <switches> <!-- Switches are odd numbers, (N)ormal or (R)everse, "W": 1NW and 1RW -->
+        <switch name="1"                                                          trackcircuit="1T1" />
+        <switch name="3"   motor="T3"  feedback="auto"                            trackcircuit="DLT" />
+        <switch name="5"   motor="T5"  feedback="auto"                            trackcircuit="DLT" />
+        <switch name="7"   motor="T7"  feedback="auto"                            trackcircuit="DLT" />
+        <switch name="9"   motor="T9"  feedback="auto"                            trackcircuit="DLT" />
+        <switch name="11"  motor="T11" feedback="auto"                            trackcircuit="DLT" />
+        <switch name="13"  motor="T13" feedback="auto"                            trackcircuit="DLT" />
+
+        <switch name="15"  motor="T15" feedback="auto"                            trackcircuit="ALT" />
+        <switch name="17"  motor="T17" feedback="auto"                            trackcircuit="ALT" />
+        <switch name="19"  motor="T19" feedback="auto"                            trackcircuit="ALT" />
+        <switch name="21"  motor="T21" feedback="auto"                            trackcircuit="ALT" />
+        <switch name="23"  motor="T23" feedback="auto"                            trackcircuit="ALT" />
+
+        <switch name="25"  motor="T25"               normal="25NW" reverse="25RW" trackcircuit="25T1" />
+    </switches>
+
+    <maintainers>
+            <call         name="K0" /> <!-- Relays -->
+            <call         name="K1" />
+            <call         name="K2" />
+            <call         name="K3" />
+            <call         name="K4" />
+            <call         name="K5" />
+            <call         name="K6" />
+            <call         name="K7" />
+    </maintainers>
+
+
+    <trackcircuits>
+        <trackcircuit name="1T1"  />
+        <trackcircuit name="25T1" />
+
+        <trackcircuit name="DLT"  />  <!-- Departure Ladder -->
+        <trackcircuit name="ALT"  />  <!-- Arrival Ladder -->
+        <trackcircuit name="AT"   />  <!-- Arrival Track -->
+        <trackcircuit name="SAT"  slaveto="2AT,AT,ALT" />  <!-- internal - selected Arrival Occupancy -->
+        <trackcircuit name="SDT"  slaveto="DLT"/>          <!-- internal - selected Departure Occupancy -->
+
+        <trackcircuit name="1ET" /> <!-- Optical Detectors -->
+        <trackcircuit name="2ET" />
+        <trackcircuit name="3ET" />
+        <trackcircuit name="4ET" />
+        <trackcircuit name="5ET" />
+        <trackcircuit name="6ET" />
+        <trackcircuit name="7ET" />
+        <trackcircuit name="1DT" /> <!-- Current Detectors -->
+        <trackcircuit name="2DT" />
+        <trackcircuit name="3DT" />
+        <trackcircuit name="4DT" />
+        <trackcircuit name="5DT" />
+        <trackcircuit name="6DT" />
+        <trackcircuit name="7DT" />
+        <trackcircuit name="1CT" /> <!-- Current Detectors -->
+        <trackcircuit name="2CT" />
+        <trackcircuit name="3CT" />
+        <trackcircuit name="4CT" />
+        <trackcircuit name="5CT" />
+        <trackcircuit name="6CT" />
+        <trackcircuit name="7CT" />
+        <trackcircuit name="1BT" /> <!-- Current Detectors -->
+        <trackcircuit name="2BT" />
+        <trackcircuit name="3BT" />
+        <trackcircuit name="4BT" />
+        <trackcircuit name="5BT" />
+        <trackcircuit name="6BT" />
+        <trackcircuit name="7BT" />
+        <trackcircuit name="2AT" />
+    </trackcircuits>
+
+    <signals>
+        <!--
+        routes have signals that protect them,
+        Switches in a route either match the desired direction
+            aspect=CLEAR  (default if current position == desired)
+                Use the aspect tag to generate an aspect less than clear
+                (e.g., aspect=RESTRICTING for an uncontrolled siding...)
+            aspect=STOP   (if current position != desired )
+
+        Signals can generate
+            CLEAR - if lever set to LEFT or RIGHT that matches direction
+            RESTRICTING if the ER stick is set, or
+            STOP
+
+            TBD: a <signal> in a route can be used to interlock with other signals
+
+        Track circuits in a route cause either CLEAR or STOP (if occupied)
+
+        A route's aspect is the most restrictive found in the logic chain
+        The signal head's aspect is the least restrictive choice of all its routes
+
+        Names should match names used in this CP's ind, ctl and field definitions
+        OR should be of the form OtherCP_Name:xxx, where the xxx is arbitrary
+            OtherCP_Name must match the DEPENDS data
+            OtherCP_Name:xxx must match the Switch/Trackcircuit/... names above
+        -->
+
+        <signal name="2" ER="True" FLEET="True">
+			<knockdown>
+		        <trackcircuit name="1T1" />
+		        <indication   name="CP_Sargent:1T1K" />
+			</knockdown>
+            <!--
+               |-
+                ====-\
+               |-     \                -|
+                =======1== ==1====out=== =======
+        CP_Sargent:1NWK      \ 1T1
+        CP_Sargent:1T1K       \
+    CP_Sargent:1SAK            \==in==== ==\
+                                   2nAB-|   \
+		    -->
+            <head name="H2NA" direction="N"> 	 <!-- Reverse movement on Staging Arrival  -->
+				<route name="SA-MT">             <!-- Y/R   to MT -->
+					<switch       name="1"                 position="R" aspect="CLEAR" />
+                    <indication   name="CP_Sargent:1NWK"   invert="1"   aspect="APPROACH" /> <!-- C -->
+                    <trackcircuit name="1T1" />
+                    <!--indication   name="CP_Sargent:1T1K"   invert="1" /> -->
+			        <!--indication   name="CP_Sargent:1SAK"   invert="1" /> -->
+                    <signal       name="2"                 direction="LEFT"/>
+				</route>
+			</head>
+            <head name="H2NB" direction="N">
+				<route name="SA-IND">            <!-- R/(R)  to IND -->
+					<switch       name="1"                 position="R" aspect="RESTRICTING" /> <!-- R -->
+                    <indication   name="CP_Sargent:1RWK"   invert="1"   aspect="CLEAR" /> <!-- C -->
+                    <trackcircuit name="1T1" />
+                    <!--indication   name="CP_Sargent:1T1K"   invert="1" /> -->
+			        <!--indication   name="CP_Sargent:2SAK"   invert="1" /> -->
+                    <signal       name="2"                 direction="LEFT"/>
+				</route>
+
+            </head>
+            <!--
+               |-
+                ====-\
+               |-     \            2nCD-|
+                =======1== ==1===out==== =======
+        CP_Sargent:1NWK      \ 1T1
+        CP_Sargent:1T1K       \
+    CP_Sargent:1SAK            \==in==== ==\
+                                       -|   \
+		    -->
+            <head name="H2NC" direction="N"> 	 <!-- Staging Departure  -->
+				<route name="SD-MT">             <!-- G/R   to MT -->
+					<switch       name="1"                 position="N" aspect="CLEAR" />
+                    <indication   name="CP_Sargent:1NWK"   invert="1"   aspect="CLEAR" /> <!-- C -->
+                    <trackcircuit name="1T1" />
+                    <!--indication   name="CP_Sargent:1T1K"   invert="1" /> -->
+			        <!--indication   name="CP_Sargent:1SAK"   invert="1" /> -->
+                    <signal       name="2"                 direction="LEFT"/>
+				</route>
+			</head>
+            <head name="H2ND" direction="N">
+				<route name="SD-IND">            <!-- R/Y    to IND -->
+					<switch       name="1"                 position="N" aspect="CLEAR" />
+                    <indication   name="CP_Sargent:1RWK"   invert="1"   aspect="RESTRICTING" /> <!-- A -->
+                    <trackcircuit name="1T1" />
+                    <!--indication   name="CP_Sargent:1T1K"   invert="1" /> -->
+			        <!--indication   name="CP_Sargent:2SAK"   invert="1" /> --> 
+                    <signal       name="2"                 direction="LEFT"/>
+				</route>
+            </head>
+
+            <!--
+               |-
+                ====-\
+               |-2sBA \              -|
+                ======== ==1===out==== =======
+                            \
+                             \==in==== ==\
+                                     -|   \
+		    -->
+
+            <head name="H2SA" direction="S">      <!-- MT to Staging -->
+				<route name="MT-DEP">	          <!-- (R)/R     to departure (reverse movement) -->
+					<indication   name="CP_Sargent:1NWK"           aspect="CLEAR" />
+					<switch       name="1"        position="N"     aspect="RESTRICTING" />
+			        <trackcircuit name="1T1" />
+                    <trackcircuit name="DLT" />
+                    <signal       name="2"                         direction="RIGHT"/>
+				</route>
+            </head>
+            <head name="H2SB" direction="S">
+				<route name="MT-ARR1">	          <!-- R/G     to Arrival lead -->
+					<indication   name="CP_Sargent:1NWK"           aspect="CLEAR" />
+					<switch       name="1"        position="R"     aspect="CLEAR" />
+			        <trackcircuit name="1T1" />
+                    <trackcircuit name="AT" />
+                    <signal       name="2"                         direction="RIGHT"/>
+				</route>
+            </head>
+
+            <!--
+               |-2sDC
+                ====-\
+               |-     \              -|
+                ======== ==1===out==== =======
+                            \
+                             \==in==== ==\
+                                     -|   \
+		    -->
+
+            <head name="H2SC" direction="S">      <!-- Beet loader to Staging -->
+				<route name="MT-DEP">	          <!-- (R)/R     to departure (reverse movement) -->
+					<indication   name="CP_Sargent:1RWK"           aspect="APPROACH" />
+					<switch       name="1"        position="N"     aspect="RESTRICTING" />
+			        <trackcircuit name="1T1" />
+                    <trackcircuit name="DLT" />
+                    <signal       name="2"                         direction="RIGHT"/>
+				</route>
+            </head>
+            <head name="H2SD" direction="S">
+				<route name="MT-ARR1">	          <!-- R/G     to Arrival lead -->
+					<indication   name="CP_Sargent:1RWK"           aspect="CLEAR" />
+					<switch       name="1"        position="R"     aspect="CLEAR" />
+			        <trackcircuit name="1T1" />
+                    <trackcircuit name="AT" />
+                    <signal       name="2"                         direction="RIGHT"/>
+				</route>
+            </head>
+        </signal>
+    </signals>
+
+    <indications>
+        <indication name="1NW"    word="0" bit="0"/>
+        <indication name="1RW"    word="0" bit="1"/>
+        <indication name="3NW"    word="0" bit="2"/>
+        <indication name="3RW"    word="0" bit="3"/>
+        <indication name="5NW"    word="0" bit="4"/>
+        <indication name="5RW"    word="0" bit="5"/>
+        <indication name="7NW"    word="0" bit="6"/>
+        <indication name="7RW"    word="0" bit="7"/>
+
+        <indication name="9NW"    word="1" bit="0"/>
+        <indication name="9RW"    word="1" bit="1"/>
+        <indication name="11NW"   word="1" bit="2"/>
+        <indication name="11RW"   word="1" bit="3"/>
+        <indication name="13NW"   word="1" bit="4"/>
+        <indication name="13RW"   word="1" bit="5"/>
+        <indication name="15NW"   word="1" bit="6"/>
+        <indication name="15RW"   word="1" bit="7"/>
+
+        <indication name="17NW"   word="2" bit="0"/>
+        <indication name="17RW"   word="2" bit="1"/>
+        <indication name="19NW"   word="2" bit="2"/>
+        <indication name="19RW"   word="2" bit="3"/>
+        <indication name="21NW"   word="2" bit="4"/>
+        <indication name="21RW"   word="2" bit="5"/>
+        <indication name="23NW"   word="2" bit="6"/>
+        <indication name="23RW"   word="2" bit="7"/>
+
+        <indication name="25NW"   word="3" bit="0"/>
+        <indication name="25RW"   word="3" bit="1"/>
+        <indication name="TL"     word="3" bit="2"/>
+        <indication name="TR"     word="3" bit="3"/>
+        <indication name="2SG"    word="3" bit="4"/>
+        <indication name="2NG"    word="3" bit="5"/>
+        <indication name="2TE"    word="3" bit="6"/>
+        <indication name="SAT"    word="3" bit="7"/> <!-- Selected Arrival Track   TBD -->
+
+        <!-- Departure tracks   -->
+        <indication name="1ET"    word="4" bit="0" />
+        <indication name="2ET"    word="4" bit="1" />
+        <indication name="3ET"    word="4" bit="2" />
+        <indication name="4ET"    word="4" bit="3" />
+        <indication name="5ET"    word="4" bit="4" />
+        <indication name="6ET"    word="4" bit="5" />
+        <indication name="7ET"    word="4" bit="6" />
+        <indication name="ALT"    word="4" bit="7" />
+
+        <!--  Departure tracks   -->
+        <indication name="1DT"    word="5" bit="0" />
+        <indication name="2DT"    word="5" bit="1" />
+        <indication name="3DT"    word="5" bit="2" />
+        <indication name="4DT"    word="5" bit="3" />
+        <indication name="5DT"    word="5" bit="4" />
+        <indication name="6DT"    word="5" bit="5" />
+        <indication name="7DT"    word="5" bit="6" />
+        <indication name="DLT"    word="5" bit="7" />
+
+        <!--  Mid tracks   -->
+        <indication name="1CT"    word="6" bit="0" />
+        <indication name="2CT"    word="6" bit="1" />
+        <indication name="3CT"    word="6" bit="2" />
+        <indication name="4CT"    word="6" bit="3" />
+        <indication name="5CT"    word="6" bit="4" />
+        <indication name="6CT"    word="6" bit="5" />
+        <indication name="7CT"    word="6" bit="6" />
+        <indication name="25T1"   word="6" bit="7" />
+
+        <!--  Mid tracks   -->
+        <indication name="1BT"    word="7" bit="0" />
+        <indication name="2BT"    word="7" bit="1" />
+        <indication name="3BT"    word="7" bit="2" />
+        <indication name="4BT"    word="7" bit="3" />
+        <indication name="5BT"    word="7" bit="4" />
+        <indication name="6BT"    word="7" bit="5" />
+        <indication name="7BT"    word="7" bit="6" />
+        <indication name="1T1"    word="7" bit="7" />
+
+        <indication name="2AT"     word="8" bit="0" />
+        <indication name="AT"      word="8" bit="4" /> <!-- AR unit -->
+		
+        <indication name="Y1T"     word="9" bit="0" /> <!-- synthetic - if any occupancy... TBD -->
+        <indication name="Y2T"     word="9" bit="1" />
+        <indication name="Y3T"     word="9" bit="2" />
+        <indication name="Y4T"     word="9" bit="3" />
+        <indication name="Y5T"     word="9" bit="4" />
+        <indication name="Y6T"     word="9" bit="5" />
+        <indication name="Y7T"     word="9" bit="6" />
+        <indication name="SDT"     word="9" bit="7" /> <!-- Selected Departure Track TBD -->
+    </indications>
+
+    <controls>
+        <control name="1NW"       word="0" bit="0"/>
+        <control name="1RW"       word="0" bit="1"/>
+        <control name="3NW"       word="0" bit="2"/>
+        <control name="3RW"       word="0" bit="3"/>
+        <control name="5NW"       word="0" bit="4"/>
+        <control name="5RW"       word="0" bit="5"/>
+        <control name="7NW"       word="0" bit="6"/>
+        <control name="7RW"       word="0" bit="7"/>
+
+        <control name="9NW"       word="1" bit="0"/>
+        <control name="9RW"       word="1" bit="1"/>
+        <control name="11NW"      word="1" bit="2"/>
+        <control name="11RW"      word="1" bit="3"/>
+        <control name="13NW"      word="1" bit="4"/>
+        <control name="13RW"      word="1" bit="5"/>
+        <control name="15NW"      word="1" bit="6"/>
+        <control name="15RW"      word="1" bit="7"/>
+
+        <control name="17NW"      word="2" bit="0"/>
+        <control name="17RW"      word="2" bit="1"/>
+        <control name="19NW"      word="2" bit="2"/>
+        <control name="19RW"      word="2" bit="3"/>
+        <control name="21NW"      word="2" bit="4"/>
+        <control name="21RW"      word="2" bit="5"/>
+        <control name="23NW"      word="2" bit="6"/>
+        <control name="23RW"      word="2" bit="7"/>
+
+        <control name="25NW"      word="3" bit="0"/>
+        <control name="25RW"      word="3" bit="1"/>
+        <control name="2SG"       word="3" bit="2"/>
+        <control name="2NG"       word="3" bit="3"/>
+        <control name="2H"        word="3" bit="4"/>
+    </controls>
+
+
+<!--
+    A field unit is an autonomous unit that has something to do with the Control Point
+
+    All CPs have a fieldunit that directly controls the appliances associated with the CP
+    by listening for control packets on the codeline and generating indication packets as
+    changes are detected.
+
+    Some CPs have an additional Maintainer control panel that can generate its own
+    code line traffic
+
+    If there is a cTc machine associated with the layout, there will also be a ctc
+    unit that reads panel switches and displays model board lights
+-->
+
+    <field name="fieldunit">
+        <input   name="1RW"       device="0" bit="0" />
+        <input   name="1NW"       device="0" bit="1" />
+        <input   name="1T1"       device="0" bit="2" />
+        <output  name="T1"        device="0" bit="3" />
+
+        <input   name="25RW"      device="0" bit="4" />
+        <input   name="25NW"      device="0" bit="5" />
+        <input   name="25T1"      device="0" bit="6" />
+        <output  name="T25"       device="0" bit="7" />
+        <!--  Departure ladder -->
+        <output   name="T3"       device="1" bit="0" />
+        <output   name="T5"       device="1" bit="1" />
+        <output   name="T7"       device="1" bit="2" />
+        <output   name="T9"       device="1" bit="3" />
+
+        <output   name="T11"      device="1" bit="4" />
+        <output   name="T13"      device="1" bit="5" />
+        <output   name="XX1"      device="1" bit="6" />
+        <output   name="XX2"      device="1" bit="7" />
+
+        <!--  Arrival ladder  -->
+        <output   name="T15"      device="2" bit="0" />
+        <output   name="T17"      device="2" bit="1" />
+        <output   name="T19"      device="2" bit="2" />
+        <output   name="T21"      device="2" bit="3" />
+
+        <output   name="T23"      device="2" bit="4" />
+        <output   name="XX3"      device="2" bit="5" />
+        <output   name="XX4"      device="2" bit="6" />
+        <output   name="XX5"      device="2" bit="7" />
+
+        <!-- Relays - Departure tracks              -->
+        <output   name="K0"       device="3" bit="0" />
+        <output   name="K1"       device="3" bit="1" />
+        <output   name="K2"       device="3" bit="2" />
+        <output   name="K3"       device="3" bit="3" />
+
+        <output   name="K4"       device="3" bit="4" />
+        <output   name="K5"       device="3" bit="5" />
+        <output   name="K6"       device="3" bit="6" />
+        <output   name="K7"       device="3" bit="7" />
+
+        <!-- Optical DETECTORS - Departure tracks   -->
+        <input   name="1ET"       device="4" bit="0" />
+        <input   name="2ET"       device="4" bit="1" />
+        <input   name="3ET"       device="4" bit="2" />
+        <input   name="4ET"       device="4" bit="3" />
+
+        <input   name="5ET"       device="4" bit="4" />
+        <input   name="6ET"       device="4" bit="5" />
+        <input   name="7ET"       device="4" bit="6" />
+        <input   name="XXX"       device="4" bit="7" />
+
+        <!-- CURRENT DETECTORS - Departure tracks   -->
+        <input   name="1DT"       device="5" bit="0" />
+        <input   name="2DT"       device="5" bit="1" />
+        <input   name="3DT"       device="5" bit="2" />
+        <input   name="4DT"       device="5" bit="3" />
+
+        <input   name="5DT"       device="5" bit="4" />
+        <input   name="6DT"       device="5" bit="5" />
+        <input   name="7DT"       device="5" bit="6" />
+        <input   name="2AT"       device="5" bit="6" /> <!-- Y2A detection -->
+
+        <!-- CURRENT DETECTORS - Departure tracks   -->
+        <input   name="1CT"       device="6" bit="0" />
+        <input   name="2CT"       device="6" bit="1" />
+        <input   name="3CT"       device="6" bit="2" />
+        <input   name="4CT"       device="6" bit="3" />
+
+        <input   name="5CT"       device="6" bit="4" />
+        <input   name="6CT"       device="6" bit="5" />
+        <input   name="7CT"       device="6" bit="6" />
+        <input   name="ALT"       device="6" bit="7" />
+
+        <!-- CURRENT DETECTORS - Departure tracks   -->
+        <input   name="1BT"       device="7" bit="0" />
+        <input   name="2BT"       device="7" bit="1" />
+        <input   name="3BT"       device="7" bit="2" />
+        <input   name="4BT"       device="7" bit="3" />
+
+        <input   name="5BT"       device="7" bit="4" />
+        <input   name="6BT"       device="7" bit="5" />
+        <input   name="7BT"       device="7" bit="6" />
+        <input   name="DLT"       device="7" bit="7" />
+
+        <!-- CURRENT DETECTORS - Misc tracks   -->
+        <input   name="AT"        device="8" bit="0" />
+        <input   name="x81"       device="8" bit="1" />
+        <input   name="x82"       device="8" bit="2" />
+        <input   name="x83"       device="8" bit="3" />
+
+        <input   name="x84"       device="8" bit="4" />
+        <input   name="x85"       device="8" bit="5" />
+        <input   name="x86"       device="8" bit="6" />
+        <input   name="x87"       device="8" bit="7" />
+
+        <!-- device="9" unused -->
+
+        <signal name="2">
+                <head  name="H2NA"> <!-- Departure -->
+                    <output  name="H2NA1"     device="10" bit="0" />
+                    <output  name="H2NA2"     device="10" bit="1" />
+                </head>
+
+                <head  name="H2NB">
+                    <output  name="H2NB1"     device="10" bit="2" />
+                    <output  name="H2NB2"     device="10" bit="3" />
+                </head>
+
+                <head  name="H2NC">
+                    <output  name="H2NC1"     device="10" bit="4" /> 
+                    <output  name="H2NC2"     device="10" bit="5" />
+                </head>
+
+                <head  name="H2ND">
+                    <output  name="H2ND1"     device="10" bit="6" />
+                    <output  name="H2ND2"     device="10" bit="7" />
+                </head>
+
+
+                <head  name="H2SA"> <!-- Arrival -->
+                    <output  name="H2SA1"     device="11" bit="0" />
+                    <output  name="H2SA2"     device="11" bit="1" />
+                </head>
+
+                <head  name="H2SB">
+                    <output  name="H2SB1"     device="11" bit="2" />
+                    <output  name="H2SB2"     device="11" bit="3" />
+                </head>
+                <head  name="H2SC">
+                    <output  name="H2SC1"     device="11" bit="4" /> 
+                    <output  name="H2SC2"     device="11" bit="5" />
+                </head>
+
+                <head  name="H2SD">
+                    <output  name="H2SD1"     device="11" bit="6" />
+                    <output  name="H2SD2"     device="11" bit="7" />
+                </head>
+        </signal>
+
+        <!--           -nc-       device="12" bit="0" -->
+        <matrix  name="CODE" type="codeline">
+            <output  name="CL_DT"        type="DATA"   device="12" bit="1" />
+            <output  name="CL_CE"        type="CE"     device="12" bit="2" />
+            <output  name="CL_CL"        type="CLOCK"  device="12" bit="3" />
+            <display name="controls"     order="0" />
+            <display name="indications"  order="1" />
+        </matrix>
+
+		<output  name="SAT"       device="13" bit="4" /> <!-- fake -->
+		<output  name="SDT"       device="13" bit="5" /> <!-- fake -->
+        <!--                      device="13" bit="6"-->
+        <!--                      device="13" bit="7"-->
+
+        <lcd name="lcd"     type="LiquidCrystal_I2C" init="(0x27, 16, 4)" display="16,4" device="14" />
+
+	    <expander type="PCF8574"      address="0"  device="0" />  <!-- SW1, SW25 -->
+	    <expander type="PCF8574A"     address="0"  device="1" />  <!-- Departure: SW3,  5,  7,  9,  11, 13  -->
+	    <expander type="PCF8574"      address="1"  device="2" />  <!-- Arrival:   SW15, 17, 19, 12, 23  -->
+	    <expander type="PCF8574A"     address="1"  device="3" />  <!-- Relays - Departure tracks -->
+        <expander type="PCF8574"      address="2"  device="4" />  <!-- Optical DETECTORS - Departure tracks   -->
+	    <expander type="PCF8574A"     address="2"  device="5" />
+        <expander type="PCF8574"      address="3"  device="6" />
+	    <expander type="PCF8574A"     address="3"  device="7" />
+        <expander type="PCF8574"      address="4"  device="8" />
+	    <expander type="PCF8574A"     address="4"  device="9" />
+        <expander type="PCF8574"      address="5"  device="10" /> <!-- SIGNALS -->
+	    <expander type="PCF8574A"     address="5"  device="11" />
+
+	    <expander type="WEMOS_MATRIX" address="-1" device="12" /> <!-- CODELINE  -->
+	    <expander type="WEMOS"        address="-1" device="13" />
+
+        <expander type="I2CLCD"       address="7"  device="14" /> <!-- LED Backpack -->
+
+    <function name="control_safe" >
+        // enable relay to turn on track power for selected departure track
+        
+    </function>
+    </field>
+</controlpoint>
+
+

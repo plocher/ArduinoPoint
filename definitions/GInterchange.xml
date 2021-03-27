@@ -1,0 +1,292 @@
+<controlpoint name="GInterchange" layout="SPCoast" node="0x78">
+    <depends  name="CP_Luchessa"            xmlfile="CP_Luchessa.xml"     />
+	
+<doc>
+    Gilroy Interchange
+
+    &lt; Railroad West/North                             Railroad East/South &gt;
+
+           MC1 2Nc O-|                 MC2
+                   /=== ==INTER== ===\
+                  /               |-O \ 2Sc
+             1T1 /                 3T1 \  oo--| 2Nab
+    MT  =1SA= ==+==== =====TK1===== ====+=== =CP_Luchessa:1SA=   MT
+             |--oo 2Sab
+
+    Single track  north of Luchessa to Michael
+
+    1T - MT to north interchange - LOCK, local control
+    3T - MT to south interchange - LOCK, local control
+
+     EastBound Approach from Michael EA
+     West Approach from Luchessa WA
+
+
+</doc>
+<switches>
+        <switch name="1"  trackcircuit="1T1" />
+        <switch name="3"  trackcircuit="3T1" />
+
+</switches>
+<trackcircuits>
+        <trackcircuit name="1T1" />
+        <trackcircuit name="3T1" />
+        <trackcircuit name="1SA" />
+        <trackcircuit name="TK1" />
+        <trackcircuit name="INTER" />
+</trackcircuits>
+<maintainers>
+        <call         name="MC1" />
+        <call         name="MC2" />
+</maintainers>
+
+    <signals>
+        <signal name="2" ER="True" FLEET="True">
+			<knockdown>
+		        <trackcircuit name="1T1"  />
+		        <trackcircuit name="3T1" />
+			</knockdown>
+
+            <head name="H2NA" direction="N"> 	<!--    MT N'bound on MT  -->
+				<route name="MT-MT">            
+                    <switch       name="1"                        position="N" />
+                    <switch       name="3"                        position="N"     aspect="CLEAR" />
+                    <trackcircuit name="1T1" />
+                    <trackcircuit name="3T1" />
+                    <trackcircuit name="TK1" />
+			        <trackcircuit name="1SA"  />
+                    <signal       name="2"                         direction="LEFT"/>
+				</route>
+				<route name="MT-MT-B">          <!-- MT NB MT with occupancy north of siding -->
+                    <switch       name="1"                        position="N" />
+                    <switch       name="3"                        position="N"     aspect="APPROACH" />
+                    <trackcircuit name="1T1" />
+                    <trackcircuit name="3T1" />
+                    <trackcircuit name="TK1" />
+                    <signal       name="2"                         direction="LEFT"/>
+				</route>
+				
+				<route name="MT2-MT2-C">        <!-- MT NB MT with occupancy on TK1 -->
+                    <switch       name="1"                        position="N" />
+                    <switch       name="3"                        position="N"     aspect="RESTRICTING" />
+                    <trackcircuit name="1T1" />
+                    <trackcircuit name="3T1" />
+                    <signal       name="2"                         direction="LEFT"/>
+				</route>
+                <!-- otherwise RED -->
+			</head>
+            <head name="H2NB" direction="N"> 	<!--    MT N'bound to MT via INTER track  -->
+                <route name="MT-INTER-MT">         
+					<switch       name="3"                         position="R" />
+					<switch       name="1"                         position="R"     aspect="ADVANCE APPROACH" />
+			        <trackcircuit name="1T1"  />
+			        <trackcircuit name="3T1" />
+                    <trackcircuit name="INTER" />
+                    <signal       name="2"                         direction="LEFT"/>
+				</route>
+                <route name="MT-INTER-MT-B">         
+					<switch       name="3"                         position="R" />
+					<switch       name="1"                         position="R"     aspect="APPROACH" />
+			        <trackcircuit name="1T1"  />
+			        <trackcircuit name="3T1" />
+                    <signal       name="2"                         direction="LEFT"/>
+				</route>
+                <route name="MT-INTER-MT-C">         
+					<switch       name="3"                         position="R" />
+					<switch       name="1"                         position="N"     aspect="RESTRICTING" />
+			        <trackcircuit name="1T1"  />
+			        <trackcircuit name="3T1" />
+                    <signal       name="2"                         direction="LEFT"/>
+				</route>
+            </head>
+            <head name="H2NC" direction="N"> 	<!--    INTER N'bound to MT  -->
+                <route name="MT-INTER-MT">         
+					<switch       name="1"                         position="R"     aspect="APPROACH" />
+			        <trackcircuit name="1T1"  />
+                    <trackcircuit name="1SA" />
+                    <signal       name="2"                         direction="LEFT"/>
+				</route>
+                <route name="MT-INTER-MT-B">         
+					<switch       name="1"                         position="R"     aspect="RESTRICTING" />
+			        <trackcircuit name="1T1"  />
+                    <signal       name="2"                         direction="LEFT"/>
+				</route>
+            </head>
+			
+            <head name="H2SA" direction="S">  <!--    MT S'bound upper head  -->
+				<route name="MT-MT">	      <!-- Straight through on MT  -->
+					<switch       name="1"                         position="N" />
+					<switch       name="3"                         position="N"     aspect="CLEAR" />
+			        <trackcircuit name="1T1"  />
+			        <trackcircuit name="3T1"  />
+                    <trackcircuit name="CP_Luchessa:1SAK"  />
+                    <signal       name="2"                         direction="RIGHT"/>
+				</route>
+				<route name="MT-MT-B">	      <!-- Straight through on MT  -->
+					<switch       name="1"                         position="N" />
+					<switch       name="3"                         position="N"     aspect="APPROACH" />
+			        <trackcircuit name="1T1"  />
+			        <trackcircuit name="3T1"  />
+                    <signal       name="2"                         direction="RIGHT"/>
+				</route>
+            </head>
+
+			<head name="H2SB" direction="S"> 	 <!--     MT1 S'bound into MT1, lower head  -->
+				<route name="MT-INTER-MT">
+					<switch       name="1"                         position="N" />
+					<switch       name="3"                         position="R"     aspect="CLEAR" />
+                    <trackcircuit name="1T1"  />
+                    <trackcircuit name="3T1" />
+                    <trackcircuit name="INTER" />
+                    <trackcircuit name="CP_Luchessa:1SAK"  />
+                    <signal       name="2"                         direction="RIGHT"/>
+				</route>
+				<route name="MT-INTER-MT-B">
+					<switch       name="1"                         position="N" />
+					<switch       name="3"                         position="R"     aspect="APPROACH" />
+                    <trackcircuit name="1T1"  />
+                    <trackcircuit name="3T1" />
+                    <trackcircuit name="INTER" />
+                    <signal       name="2"                         direction="RIGHT"/>
+				</route>
+				<route name="MT-INTER-MT-C">
+					<switch       name="1"                         position="N" />
+					<switch       name="3"                         position="R"     aspect="RESTRICTING" />
+                    <trackcircuit name="1T1"  />
+                    <trackcircuit name="3T1" />
+                    <signal       name="2"                         direction="RIGHT"/>
+				</route>
+			</head>
+
+            <head name="H2SC" direction="S">  <!--    INTER S'bound  -->
+				<route name="INTER-MT">	   
+					<switch       name="3"                         position="R"     aspect="APPROACH" />
+			        <trackcircuit name="3T1"  />
+                    <trackcircuit name="CP_Luchessa:1SAK"  />
+				</route>
+				<route name="INTER-MT-B">
+					<switch       name="3"                         position="R"     aspect="RESTRICTING" />
+			        <trackcircuit name="3T1"  />
+				</route>
+			</head>
+        </signal>
+</signals>
+
+<indications>
+        <indication name="1NW"   word="0" bit="0"/>
+        <indication name="1RW"   word="0" bit="1"/>
+        <indication name="3NW"   word="0" bit="2"/>
+        <indication name="3RW"   word="0" bit="3"/>
+		
+        <indication name="MC1"   word="0" bit="6" />
+        <indication name="MC2"   word="0" bit="7" />
+
+        <indication name="1T1"   word="1" bit="0" />
+        <indication name="3T1"   word="1" bit="1" />
+        <indication name="1SA"   word="1" bit="2" />
+        <indication name="TK1"   word="1" bit="3" />
+        <indication name="INTER" word="1" bit="4" />
+        <indication name="TL"    word="1" bit="5" />
+        <indication name="TR"    word="1" bit="6" />
+		
+        <indication name="2SG"   word="2" bit="0" />
+        <indication name="2NG"   word="2" bit="1" />
+        <indication name="2TE"   word="2" bit="2" />
+		
+</indications>
+
+<controls>
+        <control name="1NW"      word="0" bit="0" />
+        <control name="1RW"      word="0" bit="1" />
+        <control name="3NW"      word="0" bit="2" />
+        <control name="3RW"      word="0" bit="3" />
+	
+        <control name="MC2"      word="0" bit="6" />
+        <control name="MC1"      word="0" bit="7" />
+
+        <control name="2SG"      word="1" bit="0" />
+        <control name="2NG"      word="1" bit="1" />
+        <control name="2H"       word="1" bit="2" />
+
+        <control name="TL"       word="1" bit="5" />
+        <control name="TR"       word="1" bit="6" />
+</controls>
+
+<field name="fieldunit">
+        <input   name="1RW"      device="0" bit="0" />  <!-- Turtle -->
+        <input   name="1NW"      device="0" bit="1" />
+        <input   name="1T1"      device="0" bit="2" />
+        <output  name="T1"       device="0" bit="3" />
+
+        <input   name="3RW"      device="0" bit="4" />  <!-- Turtle -->
+        <input   name="3NW"      device="0" bit="5" />
+        <input   name="3T1"      device="0" bit="6" />
+        <output  name="T3"       device="0" bit="7" />
+
+        <input   name="1SAA"     device="1" bit="0" />  <!-- Detector 4 -->
+        <input   name="1SA"      device="1" bit="1" />
+        <input   name="INTER"    device="1" bit="2" />
+        <input   name="TK1"      device="1" bit="3" />
+
+        <output  name="MC1"      device="1" bit="4"  />
+        <output  name="MC2"      device="1" bit="5"  />
+        <!--                             1       6  unused -->
+        <!--                             1       7  unused -->
+		
+		
+        <signal name="2">
+            <head  name="H2NA" >         <!-- SB, MT1 at Luchessa SW1 -->
+                <output  name="H2NA1"     device="2" bit="0" />
+                <output  name="H2NA2"     device="2" bit="1" />
+            </head>
+            <head  name="H2NB" >
+                <output  name="H2NB1"     device="2" bit="2" />
+                <output  name="H2NB2"     device="2" bit="3" />
+            </head>
+            <head  name="H2NC" >         <!-- SB, Industry at Luchessa SW3 -->
+                <output  name="H2NC1"     device="2" bit="4" />
+                <output  name="H2NC2"     device="2" bit="5" />
+            </head>
+            <head  name="H2SC" >         <!-- NB, MT2 at Carneros SW5 -->
+                <output  name="H2SC1"     device="2" bit="6" />
+                <output  name="H2SC2"     device="2" bit="7" />
+            </head>
+            <head  name="H2SA" >         <!-- NB, MT1 at Luchessa SW1 -->
+                <output  name="H2SA1"     device="3" bit="0" />
+                <output  name="H2SA2"     device="3" bit="1" />
+            </head>
+            <head  name="H2SB" >
+                <output  name="H2SB1"     device="3" bit="2" />
+                <output  name="H2SB2"     device="3" bit="3" />
+            </head>
+        </signal>
+
+        <!--                              4      0  unused -->
+        <matrix  name="CODE" type="codeline">
+            <output  name="CL_DT" device="4" bit="1"  type="DATA"   />  <!-- names are special... -->
+            <output  name="CL_CE" device="4" bit="2"  type="CE"     />  <!-- names are special... -->
+            <output  name="CL_CL" device="4" bit="3"  type="CLOCK"  />  <!-- names are special... -->
+
+            <display name="controls"     order="0" />  <!-- names are special... -->
+            <display name="indications"  order="1" />  <!-- names are special... -->
+
+        </matrix>
+
+
+   <!-- <lcd name="lcd"     type="LiquidTWI" init="(7)" device="6" /> AdaFruit's version -->
+        <lcd name="lcd"     type="LiquidCrystal_I2C" init="(0x27, 20, 4)" display="20x4" device="6" />
+
+
+	    <expander type="PCF8574"      address="0"  device="0" />
+	    <expander type="PCF8574A"     address="0"  device="1" />
+	    <expander type="PCF8574"      address="1"  device="2" />
+	    <expander type="PCF8574A"     address="1"  device="3" />
+	    <expander type="WEMOS_MATRIX" address="-1" device="4" /> <!-- Matrix -->
+	    <expander type="WEMOS"        address="-1" device="5" />
+        <expander type="I2CLCD"       address="7"  device="6" /> <!-- LED Backpack -->
+
+</field>
+
+</controlpoint>
+
+

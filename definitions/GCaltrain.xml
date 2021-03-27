@@ -1,0 +1,112 @@
+<controlpoint name="GCaltrain" layout="SPCoast" node="0x77">
+<doc>
+    Gilroy Caltrain
+
+    &lt; Railroad West/North                             Railroad East/South &gt;
+                                   2NA (...B,C)
+                                   o-|
+                                  /== =TK3===|
+                       1T1    3T / o-|
+    MT   =EA= =============+====+==== =TK2===|
+             |--oo 2SAB     \      o-|
+                             \======= =TK1===|
+                                [MC]
+
+    Single track to Michael/Tamien terminates into 3 storage tracks
+
+    1T - MT to north interchange - LOCK, local control
+    3T - MT to south interchange - LOCK, local control
+
+     EastBound Approach from Michael EA
+     West Approach from Luchessa WA
+
+
+</doc>
+<switches>
+        <switch name="1"  trackcircuit="1T1" />
+        <switch name="3"  trackcircuit="3T1" />
+
+</switches>
+<trackcircuits>
+        <trackcircuit name="1T1" />
+        <trackcircuit name="3T1" />
+        <trackcircuit name="1SA" />
+        <trackcircuit name="TK1" />
+        <trackcircuit name="TK2" />
+        <trackcircuit name="TK3" />
+</trackcircuits>
+<maintainers>
+        <call         name="MC1" />
+</maintainers>
+
+<indications>
+        <indication name="1NW"   word="0" bit="0"/>
+        <indication name="1RW"   word="0" bit="1"/>
+        <indication name="3NW"   word="0" bit="2"/>
+        <indication name="3RW"   word="0" bit="3"/>
+        <indication name="MC1"   word="0" bit="7" />
+
+        <indication name="1T1"   word="1" bit="0" />
+        <indication name="3T1"   word="1" bit="1" />
+        <indication name="1SA"   word="1" bit="2" />
+        <indication name="TK1"   word="1" bit="3" />
+        <indication name="TK2"   word="1" bit="4" />
+        <indication name="TK3"   word="1" bit="5" />
+
+</indications>
+
+<controls>
+        <control name="1NW"      word="0" bit="0" />
+        <control name="1RW"      word="0" bit="1" />
+        <control name="3NW"      word="0" bit="2" />
+        <control name="3RW"      word="0" bit="3" />
+
+        <control name="MC1"      word="0" bit="7" />
+</controls>
+
+<field name="fieldunit">
+        <input   name="1RW"      device="0" bit="0" />
+        <input   name="1NW"      device="0" bit="1" />
+        <input   name="1T1"      device="0" bit="2" />
+        <output  name="T1"       device="0" bit="3" />
+
+        <input   name="3RW"      device="0" bit="4" />
+        <input   name="3NW"      device="0" bit="5" />
+        <input   name="3T1"      device="0" bit="6" />
+        <output  name="T3"       device="0" bit="7" />
+
+
+        <input   name="1SA"      device="1" bit="0" />
+        <input   name="TK1"      device="1" bit="1" />
+        <input   name="TK2"      device="1" bit="2" />
+        <input   name="TK3"      device="1" bit="3" />
+		
+        <output  name="MC1"      device="1" bit="4" />
+        <output  name="xx1"      device="1" bit="5" />
+        <output  name="xx2"      device="1" bit="6" />
+        <output  name="xx3"      device="1" bit="7" />
+		
+
+        <lcd name="lcd"     type="LiquidCrystal_I2C" init="(0x27, 20, 4)" display="20x4" device="4" />
+
+        <output  name="xx4"      device="2" bit="0"  />
+        <matrix  name="CODE" type="codeline">
+            <output  name="CL_DT"        type="DATA"  device="2" bit="1" />  <!-- names are special... -->
+            <output  name="CL_CE"        type="CE"    device="2" bit="2" />  <!-- names are special... -->
+            <output  name="CL_CL"        type="CLOCK" device="2" bit="3" />  <!-- names are special... -->
+
+            <display name="controls"     order="0" />  <!-- names are special... -->
+            <display name="indications"  order="1" />  <!-- names are special... -->
+        </matrix>
+
+	    <expander type="PCF8574"      address="0"  device="0" />
+	    <expander type="PCF8574A"     address="0"  device="1" />
+	    <expander type="WEMOS_MATRIX" address="-1" device="2" />
+	    <expander type="WEMOS"        address="-1" device="3" />
+        <expander type="I2CLCD"       address="7"  device="4" /> <!-- LED Backpack -->
+
+</field>
+
+</controlpoint>
+
+

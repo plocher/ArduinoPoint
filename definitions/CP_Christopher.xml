@@ -1,0 +1,389 @@
+<controlpoint name="CP_Christopher" layout="SPCoast" node="0x81" board="wemos">
+    <doc>
+Christopher is a short industry siding for Christopher Ranch that also
+contains a high speed facing point crossover between the NB and SB main
+tracks that is used to allow NB trains to bypass congestion at the
+Hollister/Luchessa control point North (railroad West) of here.
+
+&lt; Railroad West/North       Christopher           Railroad East/South &gt;
+  (Carneros/Luchessa)                             (Corporal)
+
+                                                      2Nab
+                                    SW3B           oo-|
+&lt;==== 2SA ==== ====================+================== ==== 2NA ====&lt;
+             |-o            3BT1  /
+             2Sc                 -                      2Nc
+                    1T1         / 3T1     5T1         o-|
+&gt;==== 1SA ==== =======+==== ===+========= ====+======= ==== 1NA ====&gt;
+              |-oo SW1 \        SW3        / SW5
+            2Sab        \== =========== ==/
+
+
+
+There are three logical switches in CP Christopher:
+    SW1 for the north end industry/siding mainline connection,
+    SW3  &amp; SW3B for the crossover (driven in unison), and
+    SW5 for the south end industry/mainline connection
+
+There are track circuits for each switch, as well as the approach circuits for
+each direction of each main.
+    1SA  approach block on SB mainline in front of the signal,
+    2SA  approach block on NB mainline in front of the signal,
+    1T1  current detector for SW1
+    3T1  current detector for SW3 on SB Main
+    3BT1 current detector for SW3 on NB Main
+    5T1  current detector for SW5
+    1NA  approach block on SB mainline in front of the signal,
+    2NA  approach block on NB mainline in front of the signal
+
+    </doc>
+    <switches>
+            <switch name="1"  trackcircuit="1T1"  />
+            <switch name="3"  trackcircuit="3T1" />
+            <switch name="3B" trackcircuit="3BT1" slaveto="3" invert="False"/> <!-- crossover -->
+            <switch name="5"  trackcircuit="5T1"  />
+    </switches>
+    <trackcircuits>
+            <trackcircuit name="1NA" />
+            <trackcircuit name="2NA" />
+            <trackcircuit name="1SA" />
+            <trackcircuit name="2SA" />
+            <trackcircuit name="IND" />
+            <trackcircuit name="1T1" />
+            <trackcircuit name="3T1" />
+            <trackcircuit name="3BT1" />
+            <trackcircuit name="5T1" />
+    </trackcircuits>
+    <maintainers>
+            <call         name="MC1" />
+            <call         name="MC2" />
+    </maintainers>
+    <signals>
+        <signal name="2" ER="True" FLEET="True">
+			<knockdown>
+		        <trackcircuit name="1T1"  />
+		        <trackcircuit name="3T1" />
+		        <trackcircuit name="3BT1" />
+		        <trackcircuit name="5T1"  />
+			</knockdown>
+
+            <head name="H2NA" direction="N"> 	<!--    MT2 N'bound on MT2  -->
+				<route name="MT2-MT2">          <!-- Top head not RED if xover is normal -->
+                    <switch       name="3B"                        position="N"     aspect="CLEAR" />
+                    <trackcircuit name="3BT1" />
+			        <trackcircuit name="1SA"  />
+                    <!-- state of signal lever NOP if not crossover with DT... -->
+				</route>
+				<route name="MT2-MT2-TRAFFIC">     
+                    <switch       name="3B"                        position="N"     aspect="RESTRICTING" />
+                    <trackcircuit name="3BT1" />
+                    <!-- state of signal lever NOP if not crossover with DT... -->
+				</route>
+                <!-- otherwise RED -->
+			</head>
+            <head name="H2NB" direction="N"> 	<!--    MT2 N'bound crossover to MT1  -->
+                <route name="MT2-MT1">          <!-- to MT -->
+					<switch       name="3"                         position="R" />
+					<switch       name="3B"                        position="R" />
+					<switch       name="1"                         position="N"     aspect="CLEAR" />
+			        <trackcircuit name="1T1"  />
+			        <trackcircuit name="3T1" />
+                    <trackcircuit name="3BT1" />
+                    <trackcircuit name="1SA"  />
+                    <signal       name="2"                         direction="LEFT"/>
+				</route>
+                <route name="MT2-MT1-TRAFFIC">          <!-- to MT -->
+					<switch       name="3"                         position="R" />
+					<switch       name="3B"                        position="R" />
+					<switch       name="1"                         position="N"     aspect="RESTRICTING" />
+			        <trackcircuit name="1T1"  />
+			        <trackcircuit name="3T1" />
+                    <trackcircuit name="3BT1" />
+                    <signal       name="2"                         direction="LEFT"/>
+				</route>
+            </head>
+
+            <head name="H2NC" direction="N">  <!--    MT1 N'bound upper head (reverse running) -->
+				<route name="MT1-MT1">	   
+					<switch       name="1"                         position="N" />
+					<switch       name="3"                         position="N" />
+					<switch       name="5"                         position="N"     aspect="CLEAR" />
+			        <trackcircuit name="1T1"  />
+			        <trackcircuit name="3T1"  />
+			        <trackcircuit name="5T1"  />
+	                <trackcircuit name="1SA"  />
+	                <!-- state of signal lever NOP if not crossover with DT... -->
+				</route>
+				<route name="MT1-IND-MT1">	   
+					<switch       name="1"                         position="R" />
+					<switch       name="5"                         position="R"     aspect="APPROACH" />
+			        <trackcircuit name="1T1"  />
+			        <trackcircuit name="5T1"  />
+	                <trackcircuit name="IND"  />
+	                <trackcircuit name="1SA"  />
+	                <!-- state of signal lever NOP if not crossover with DT... -->
+				</route>
+				<route name="MT1-IND">	   
+					<switch       name="5"                         position="R"     aspect="RESTRICTING" />
+			        <trackcircuit name="5T1"  />
+	                <trackcircuit name="1SA"  />
+	                <!-- state of signal lever NOP if not crossover with DT... -->
+				</route>
+			</head>
+
+            <head name="H2SC" direction="S">  <!--    MT1 N'bound upper head (reverse running) -->
+				<route name="MT1-MT1">	   
+					<switch       name="3"                         position="N"     aspect="CLEAR" />
+			        <trackcircuit name="3BT1"  />
+	                <trackcircuit name="2NA"  />
+	                <!-- state of signal lever NOP if not crossover with DT... -->
+				</route>
+				<route name="MT1-MT1-TRAFFIC">	   
+					<switch       name="3"                         position="N"     aspect="RESTRICTING" />
+			        <trackcircuit name="3BT1"  />
+	                <!-- state of signal lever NOP if not crossover with DT... -->
+				</route>
+			</head>
+			
+            <head name="H2SA" direction="S">  <!--    MT1 S'bound upper head  -->
+				<route name="MT1-MT1">	   <!-- Straight through on MT1 right hand running  -->
+					<switch       name="1"                         position="N" />
+					<switch       name="3"                         position="N" />
+					<switch       name="5"                         position="N"     aspect="CLEAR" />
+			        <trackcircuit name="1T1"  />
+			        <trackcircuit name="3T1"  />
+			        <trackcircuit name="5T1"  />
+                    <trackcircuit name="1NA"  />
+                    <!-- state of signal lever NOP if not crossover with DT... -->
+				</route>
+				<route name="MT1-MT1-TRAFFIC">	   
+					<switch       name="1"                         position="N" />
+					<switch       name="3"                         position="N" />
+					<switch       name="5"                         position="N"     aspect="RESTRICTING" />
+			        <trackcircuit name="1T1"  />
+			        <trackcircuit name="3T1"  />
+			        <trackcircuit name="5T1"  />
+                    <!-- state of signal lever NOP if not crossover with DT... -->
+				</route>
+				<route name="MT1-MT2">	   <!-- Top head route thru crossover  -->
+					<switch       name="1"                         position="N" />
+					<switch       name="3"                         position="R"     aspect="APPROACH" />
+			        <trackcircuit name="1T1"  />
+			        <trackcircuit name="3T1"  />
+			        <trackcircuit name="3BT1" />
+                    <trackcircuit name="2NA"  />
+                    <signal       name="2"                         direction="RIGHT"/>
+				</route>
+            </head>
+
+			<head name="H2SB" direction="S"> 	 <!--     MT1 S'bound into MT1, lower head  -->
+				<route name="MT1-MT2">
+					<switch       name="1"                         position="N" />
+					<switch       name="3"                         position="R" />
+					<switch       name="3B"                        position="R"      aspect="CLEAR" />
+                    <trackcircuit name="5T1"  />
+                    <trackcircuit name="3T1" />
+                    <trackcircuit name="3BT1" />
+                    <trackcircuit name="1NA"  />
+                    <signal       name="2"                         direction="RIGHT"/>
+				</route>
+				<route name="MT1-MT2-TRAFFIC">
+					<switch       name="1"                         position="N" />
+					<switch       name="3"                         position="R" />
+					<switch       name="3B"                        position="R"      aspect="RESTRICTING" />
+                    <trackcircuit name="1T1"  />
+                    <trackcircuit name="3T1" />
+                    <trackcircuit name="3BT1" />
+                    <signal       name="2"                         direction="RIGHT"/>
+				</route>
+				<route name="MT1-IND">
+					<switch       name="1"                         position="R"      aspect="RESTRICTING" />
+                    <trackcircuit name="1T1"  />
+                    <signal       name="2"                         direction="RIGHT"/>
+				</route>
+				<route name="MT1-IND-MT1"> <!-- only show if 1SA is also clear... -->
+					<switch       name="5"                         position="R" />
+					<switch       name="1"                         position="R"      aspect="ADVANCE_APPROACH" />
+                    <trackcircuit name="1T1"  />
+                    <trackcircuit name="5T1"  />
+                    <trackcircuit name="IND"  />
+                    <trackcircuit name="1SA"  />
+				</route>
+				<route name="MT1-IND-MT1-TRAFFIC">
+					<switch       name="1"                         position="R" />
+					<switch       name="5"                         position="R"      aspect="APPROACH" />
+                    <trackcircuit name="1T1"  />
+                    <trackcircuit name="5T1"  />
+                    <trackcircuit name="IND"  />
+				</route>
+			</head>
+        </signal>
+</signals>
+
+    <indications>
+            <indication name="1NW"   word="0" bit="0"/>
+            <indication name="1RW"   word="0" bit="1"/>
+            <indication name="3NW"   word="0" bit="2"/>
+            <indication name="3RW"   word="0" bit="3"/>
+            <indication name="3BNW"  word="0" bit="4"/>
+            <indication name="3BRW"  word="0" bit="5"/>
+            <indication name="5NW"   word="0" bit="6"/>
+            <indication name="5RW"   word="0" bit="7"/>
+
+            <indication name="1T1"   word="1" bit="0" />
+            <indication name="3T1"   word="1" bit="1" />
+            <indication name="3BT1"  word="1" bit="2" />
+            <indication name="5T1"   word="1" bit="3" />
+            <indication name="1SA"   word="1" bit="4" />
+            <indication name="2SA"   word="1" bit="5" />			
+            <indication name="1NA"   word="1" bit="6" />
+            <indication name="2NA"   word="1" bit="7" />
+
+            <indication name="2SG"   word="2" bit="0" />
+            <indication name="2NG"   word="2" bit="1" />
+            <indication name="2TE"   word="2" bit="2" />
+            <indication name="MC1"   word="2" bit="4" />
+            <indication name="MC2"   word="2" bit="5" />
+			
+            <indication name="IND"   word="3" bit="0" />
+    </indications>
+
+    <controls>
+            <control name="1NW"      word="0" bit="0" />
+            <control name="1RW"      word="0" bit="1" />
+            <control name="3NW"      word="0" bit="2" />
+            <control name="3RW"      word="0" bit="3" />
+            <control name="3BNW"     word="0" bit="4" />
+            <control name="3BRW"     word="0" bit="5" />
+            <control name="5NW"      word="0" bit="6" />
+            <control name="5RW"      word="0" bit="7" />
+
+            <control name="2SG"      word="1" bit="0" />
+            <control name="2NG"      word="1" bit="1" />
+            <control name="2H"       word="1" bit="2" />
+            <control name="MC1"      word="1" bit="5" />
+            <control name="MC2"      word="1" bit="6" />
+    </controls>
+
+
+    <field name="fieldunit">
+            <input   name="1RW"      device="0" bit="0" />
+            <input   name="1NW"      device="0" bit="1" />
+            <input   name="1T1"      device="0" bit="2" />
+            <output  name="T1"       device="0" bit="3" />
+
+            <input   name="5RW"      device="0" bit="4" />
+            <input   name="5NW"      device="0" bit="5" />
+            <input   name="5T1"      device="0" bit="6" />
+            <output  name="T5"       device="0" bit="7" />
+
+            <input   name="3RW"      device="1" bit="0" />
+            <input   name="3NW"      device="1" bit="1" />
+            <input   name="3T1"      device="1" bit="2" />
+            <output  name="T3"       device="1" bit="3" />
+
+            <input   name="3BRW"     device="1" bit="4" />
+            <input   name="3BNW"     device="1" bit="5" />
+            <input   name="3BT1"     device="1" bit="6" />
+            <output  name="T3B"      device="1" bit="7" />
+
+            <signal name="2">
+                    <head  name="H2NA">
+                        <output  name="H2NA1"     device="2" bit="0" />
+                        <output  name="H2NA2"     device="2" bit="1" />
+                    </head>
+                    <head  name="H2NB">
+                        <output  name="H2NB1"     device="2" bit="2" />
+                        <output  name="H2NB2"     device="2" bit="3" />
+                    </head>
+                    <head  name="H2NC">
+                        <output  name="H2NC1"     device="3" bit="0" />
+                        <output  name="H2NC2"     device="3" bit="1" />
+                    </head>
+                    <head  name="H2SA">
+                        <output  name="H2SA1"     device="2" bit="4" /> <!-- H2SA1 -->
+                        <output  name="H2SA2"     device="2" bit="5" />
+                    </head>
+                    <head  name="H2SB">
+                        <output  name="H2SB1"     device="2" bit="6" />
+                        <output  name="H2SB2"     device="2" bit="7" />
+                    </head>
+                    <head  name="H2SC">
+                        <output  name="H2SC1"     device="3" bit="4" />
+                        <output  name="H2SC2"     device="3" bit="5" />
+                    </head>
+            </signal>
+
+            <input   name="1NA"      device="4" bit="0" />
+            <input   name="2NA"      device="4" bit="1" />
+            <input   name="x1"       device="4" bit="2" /><!-- unused...-->
+            <input   name="x2"       device="4" bit="3" /><!-- unused...-->
+			
+            <input   name="x3"       device="4" bit="4" /><!-- unused...-->
+            <input   name="2SA"      device="4" bit="5" />
+            <input   name="IND"      device="4" bit="6" />
+            <input   name="1SA"      device="4" bit="7" />
+
+            <output  name="MC1"      device="5" bit="0"  />
+            <output  name="MC2"      device="5" bit="1"  />
+
+            <!-- <lcd name="lcd"     type="LiquidTWI" init="(7)" display="16x2" device="4" /> -->
+            <lcd name="lcd"     type="LiquidCrystal_I2C" init="(0x27, 20, 4)"  display="20x4" device="6" />
+
+			<output name="x4"        device="7" bit="0" /> <!-- unused...-->
+            <matrix  name="CODE" type="codeline">
+                <display name="controls"     order="0" />  <!-- names are special... -->
+                <display name="indications"  order="1" />  <!-- names are special... -->
+
+                <output  name="CL_DT"        type="DATA"  device="7" bit="1" />  <!-- names are special... -->
+                <output  name="CL_CE"        type="CE"    device="7" bit="2" />  <!-- names are special... -->
+                <output  name="CL_CL"        type="CLOCK" device="7" bit="3" />  <!-- names are special... -->
+            </matrix>
+
+
+            <expander type="PCF8574"      address="0"   device="0" /> <!-- turtle 1, 5  -->
+            <expander type="PCF8574A"     address="0"   device="1" /> <!-- turtle 3, 3b -->
+            <expander type="PCF8574"      address="1"   device="2" /> <!-- Signal 2     -->
+            <expander type="PCF8574A"     address="1"   device="3" /> <!-- DCC-CB,  nc  -->
+            <expander type="PCF8574"      address="2"   device="4" /> <!-- Det, Det     -->
+            <expander type="PCF8574A"     address="2"   device="5" /> <!-- MC1,MC2      -->
+            <expander type="I2CLCD"       address="7"   device="6" /> <!-- LED Backpack -->
+            <expander type="WEMOS_MATRIX" address="-1"  device="7" /> <!-- Matrix + 1 bit -->
+            <expander type="WEMOS"        address="-1"  device="8" /> <!-- nc - 4 bit -->
+    </field>
+
+    <field name="panel">
+        <pixelchain  name="MODELBOARD">
+            <output  name="MODELBOARD_DATA"      type="DATA"   device="0" bit="1" />
+            <output  name="MODELBOARD_CE"        type="CLOCK"  device="0" bit="2" />
+
+            <SDA pin="4" />
+            <SCL pin="3" />
+            <pixel name="1NA"  type="trackcircuit"  color="white" />
+            <pixel name="2NA"  type="trackcircuit"  color="white" />
+            <pixel name="1T1"  type="trackcircuit"  color="red" />
+            <pixel name="3BT1" type="trackcircuit"  color="red" />
+            <pixel name="3T1"  type="trackcircuit"  color="red" />
+            <pixel name="5T1"  type="trackcircuit"  color="red" />
+            <pixel name="1SA"  type="trackcircuit"  color="white" />
+            <pixel name="2SA"  type="trackcircuit"  color="white" />
+        </pixelchain>
+
+        <input   name="1N"      device="0" bit="4" />
+        <input   name="1R"      device="0" bit="5" />
+
+        <input   name="3N"      device="1" bit="0" />
+        <input   name="3R"      device="1" bit="1" />
+
+        <input   name="3BN"     device="1" bit="0" />
+        <input   name="3BR"     device="1" bit="1" />
+
+        <input   name="5N"      device="1" bit="4" />
+        <input   name="5R"      device="1" bit="5" />
+
+        <expander type="ARDIO13_A"   address="0"  device="0" />
+        <expander type="ARDIO13_B"   address="0"  device="1" />
+
+    </field>
+</controlpoint>
+
