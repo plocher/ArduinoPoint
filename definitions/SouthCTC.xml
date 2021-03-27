@@ -1,0 +1,446 @@
+<controlpoint name="CTC" layout="spcoast" node="0x69">
+    	<depends  name="CP_Watsonville"         xmlfile="cp_watsonville.xml"  />
+        <depends  name="CP_Sargent"             xmlfile="cp_sargent.xml"      />
+        <depends  name="CP_Corporal"            xmlfile="cp_corporal.xml"     />
+        <depends  name="CP_Christopher"         xmlfile="cp_christopher.xml"  />
+        <depends  name="CP_Luchessa"            xmlfile="cp_luchessa.xml"     />
+        <depends  name="GInterchange"           xmlfile="Ginterchange.xml"    />
+        <depends  name="GCaltrain"              xmlfile="Gcaltrain.xml"       />
+
+    <doc name="top">
+        CTC machine for SPCoast South
+
+        16 columns wide / 34"
+
+        Gilroy through Watsonville staging
+
+    </doc>
+
+    <field name="ctc" >
+        <lcd name="lcd"     type="LiquidCrystal_I2C" init="(0x27, 20, 2)" display="20,2" device="3" />
+
+        <encoder  name="NXENTER">
+            <output  name="NXENTER_DATA1"  type="DATA1"   device="1" bit="0" />
+            <output  name="NXENTER_DATA2"  type="DATA2"   device="1" bit="1" />
+            <output  name="NXENTER_BUTTON" type="BUTTON"  device="1" bit="3" />
+        </encoder>
+        <encoder  name="NXEXIT">
+            <output  name="NXEXIT_DATA1"   type="DATA1"   device="1" bit="4" />
+            <output  name="NXEXIT_DATA2"   type="DATA2"   device="1" bit="5" />
+            <output  name="NXEXIT_BUTTON"  type="BUTTON"  device="1" bit="7" />
+        </encoder>
+
+        <ctcpanel  name="SPCoast South">
+            <controlpoint name="GCaltrain">
+                <column name="1"  device="4" hwversion="2.0">
+                    <model  name=":1T1"   position="1" color="red"    />
+                    <model  name=":SA1"   position="2" color="amber" />
+                    <call   name=":MC1" />
+                    <switch name=":1"     label="773"    />
+                </column>
+                <column name="2"  device="5" hwversion="2.0">
+                    <model  name=":TK1"   position="1" color="amber"  />
+                    <model  name=":TK2"   position="2" color="amber"  />
+                    <model  name=":TK3"   position="3" color="amber"  />
+                    <switch name=":3"     label="775" />
+                    <code   name="code" />
+                </column>
+            </controlpoint>
+            <controlpoint  name="GInterchange">
+                <column name="3"  device="6" hwversion="2.0">
+                    <model  name=":1SA"   position="3" color="amber"/>
+                    <model  name=":TL"    position="2" color="blue"  />
+                    <model  name=":TR"    position="1" color="blue"  />
+                    <call   name=":MC1" />
+                    <lock   name=":1"     label="777"/>
+                </column>
+                <column name="4"  device="7" hwversion="2.0">
+                    <model  name=":3T1"   position="1" color="amber" />
+                    <model  name=":1T1"   position="2" color="amber"  />
+                    <model  name=":TK1"   position="3" color="amber" />
+                    <call   name=":MC2" />
+                    <lock   name=":3"     label="781"/>
+                    <code   name="code" />
+                </column>
+            </controlpoint>
+            <controlpoint  name="CP_Luchessa">
+                <column name="5"  device="8" hwversion="2.0">
+                    <model  name=":1T1"   position="3" color="red" />  <!-- Luchessa OS -->
+                    <switch name=":1"     label="783" />
+                    <signal name=":2"     label="784" />
+                </column>
+                <column name="6"  device="9" hwversion="2.0">
+                    <model  name=":3T1"   position="1" color="red" />  <!-- Industry OS / Carnadero OS -->
+                    <lock   name=":3"     label="795" />
+                    <call   name=":MC1" />
+                </column>
+                <column name="7"  device="10" hwversion="2.0">
+                    <switch name=":5"     label="799" />
+                    <code   name="code" />
+                </column>
+            </controlpoint>
+            <controlpoint  name="CP_Christopher">
+                <column name="8"  device="11" hwversion="2.0">
+                    <model  name=":1SA"   position="1" color="amber"  />
+                    <model  name=":1T1"   position="2" color="amber"  />
+                    <model  name=":2SA"   position="3" color="amber"  />
+                    <lock   name=":1"     label="813" />
+                    <call   name=":MC1" />
+                </column>
+                <column name="9"  device="12" hwversion="2.0">
+                    <model  name=":3T1"   position="1" color="red" />
+                    <model  name=":3BT1"  position="2" color="red" />
+                    <model  name=":5T1"   position="3" color="red" />
+                    <switch name=":3"     label="815" />
+                    <signal name=":2"     label="816" />
+                </column>
+                <column name="10"  device="13" hwversion="2.0">
+                    <model  name=":1NA"   position="1" color="amber"  />
+                    <model  name=":2NA"   position="2" color="amber"  />
+                    <lock   name=":5"     label="817" />
+                    <call   name=":MC2" />
+                    <code   name="code" />
+                </column>
+            </controlpoint>
+            <controlpoint  name="CP_Corporal">
+                <column name="11"  device="14" hwversion="2.0">
+                    <model  name=":1T1"   position="1" color="amber"  />
+                    <model  name=":3T1"   position="2" color="red" />
+                    <model  name=":XNA"   position="3" color="amber"  />
+                    <lock   name=":1"     label="829" />
+                    <signal name=":2"     label="830" />
+                    <call   name=":MC1" />
+                </column>
+                <column name="12"  device="15" hwversion="2.0">
+                    <model  name="CP_Watsonville:TL"   position="1" color="blue"  /> <!-- Traffic lamps in model board -->
+                    <model  name="CP_Watsonville:TR"   position="2" color="blue"  />
+                    <model  name="CP_Watsonville:SDT"   position="3" color="amber"  /> <!-- Selected Departure yard exit -->
+                    <switch name=":3"     label="831" />
+                    <code   name="code" />
+                </column>
+            </controlpoint>
+            <controlpoint  name="CP_Sargent">
+                <column name="13"  device="16" hwversion="2.0">
+                    <model  name=":HBD"   position="1" color="red" />  <!-- Hot Box / Dragging detector -->
+                    <model  name=":1T1"   position="2" color="red" />  <!-- Sargent -->
+                    <model  name="CP_Watsonville:1T1"   position="3" color="amber"  /> <!-- Yard entry/exit -->
+                    <lock   name=":1"     label="835" />
+                    <call   name=":MC1" />
+                    <code   name="code" />
+                </column>
+            </controlpoint>
+            <controlpoint  name="CP_Watsonville">
+                <column name="14"  device="17" hwversion="2.0">
+                    <model  name=":ART"   position="1" color="amber" />    <!-- yard approach -->
+                    <model  name=":ALT"   position="2" color="amber"  />   <!-- yard entry ladder -->
+                    <model  name=":SAT"   position="3" color="amber"  />   <!-- Selected Arrival yard entry -->
+                    <switch name=":1"     label="837" />
+                    <signal name=":2"     label="838" />
+                    <code   name="code" />
+               </column>
+                <column name="15"  device="18">
+                    <custom>
+/* TODO: code to handle rotary switches, yard occupancy and LCD... */
+/* "D" and "A", YD, YA and LCD handled by custom code block TODO  */
+
+
+/* TBD:  Handle SAT and SDT - the dynamic selected arrival and departure track occupancy... */
+
+bool handleIndicationFor_CP_Watsonville(unsigned int dst, unsigned int src, unsigned int *packet) {
+      // update LCD display to show enter/exit/occupancy
+      // then let regular code handle the rest of the updates
+      return controlpoints[CP_Watsonville].handleIndications(packet);
+}
+
+bool sendControlsTo_CP_Watsonville(void) {
+      unsigned int controls[NUMCODEBYTES];
+      // global: yardEnter, yardExit - from rotary encoder...
+
+      for (int x = 0; x &lt; NUMCODEBYTES; x++) {
+        controls[x] = 0x00;
+      }
+      /*
+       *  On a CODE press, yardEnter and yardExit will contain the track number "route"(1-7)
+       *  Track enter                            exit
+       *    1   (15)  17   19   21   23 (25)     (3)
+       *    2   (15)  17   19   21   23  25       3   5
+       *    3   (15)  17   19   21  (23)          3  (5) (7)
+       *    4   (15)  17   19  (21)               3  (5)  7  (9)
+       *    5   (15)  17  (19)                    3  (5)  7   9  (11)
+       *    6   (15) (17)                         3  (5)  7   9   11  (13)
+       *    7    15                               3  (5)  7   9   11   13
+       */
+
+
+
+#ifndef toBit
+#define toBit(x)   (((unsigned)(x) &amp; 0x00FF))
+#endif
+#ifndef toByte
+#define toByte(x)  (((unsigned)(x) &amp; 0xFF00) >> 8)
+#endif
+
+#define N 1
+#define R 0
+#define nr(n, Norm,Rev)  {bitWrite(controls[toByte(Norm)], toBit(Norm), (n?1:0));  \
+                          bitWrite(controls[toByte(Rev) ], toBit(Rev),  (n?0:1)); }
+#define S3(n)  nr(n, CP_Watsonville_3NWS, CP_Watsonville_3RWS)
+#define S5(n)  nr(n, CP_Watsonville_5NWS, CP_Watsonville_5RWS)
+#define S7(n)  nr(n, CP_Watsonville_7NWS, CP_Watsonville_7RWS)
+#define S9(n)  nr(n, CP_Watsonville_9NWS, CP_Watsonville_9RWS)
+#define S11(n)  nr(n, CP_Watsonville_11NWS, CP_Watsonville_11RWS)
+#define S13(n) nr(n, CP_Watsonville_13NWS, CP_Watsonville_13RWS)
+
+#define S15(n) nr(n, CP_Watsonville_15NWS, CP_Watsonville_15RWS)
+#define S17(n) nr(n, CP_Watsonville_17NWS, CP_Watsonville_17RWS)
+#define S19(n) nr(n, CP_Watsonville_19NWS, CP_Watsonville_19RWS)
+#define S21(n) nr(n, CP_Watsonville_21NWS, CP_Watsonville_21RWS)
+#define S23(n) nr(n, CP_Watsonville_23NWS, CP_Watsonville_23RWS)
+#define S25(n) nr(n, CP_Watsonville_25NWS, CP_Watsonville_25RWS)
+
+      // bitWrite(controls[3], CP_Watsonville_SPOFF, 1);
+      switch (yardEnter) {  // routes
+        case 1: S15(N); S17(N); S19(N); S21(N); S23(N); S25(R); break;
+        case 2: S15(N); S17(N); S19(N); S21(N); S23(N); S25(N); break;
+        case 3: S15(N); S17(N); S19(N); S21(N); S23(R); break;
+        case 4: S15(N); S17(N); S19(N); S21(R); break;
+        case 5: S15(N); S17(N); S19(R); break;
+        case 6: S15(N); S17(R); break;
+        case 7: S15(R); break;
+      }
+      switch (yardExit) {
+        case 1: S3(R); break;
+        case 2: S3(N); S5(R); break;
+        case 3: S3(N); S5(N); S7(R); break;
+        case 4: S3(N); S5(N); S7(N); S9(R); break;
+        case 5: S3(N); S5(N); S7(N); S9(N); S11(R); break;
+        case 6: S3(N); S5(N); S7(N); S9(N); S11(N); S13(R); break;
+        case 7: S3(N); S5(N); S7(N); S9(N); S11(N); S13(N); break;
+      }
+
+      // Grab all the other appliances in the regular way...
+      controlpoints[CP_Watsonville].sendControls(NODE_CP_WATSONVILLE, controls);
+      // cloud.publishControls(NODE_CTC, NODE_CP_WATSONVILLE, controls);
+      return true;
+}
+
+
+enum yardstate { Y_EMPTY, Y_ENTERYBLOCKED, Y_OCCUPIED, Y_STOP, Y_DEPARTUREBLOCKED };
+#define OCC(tc) (bitRead( *(i+toByte(tc)), toBit(tc)))
+char *ys2s(yardstate ys) {
+    switch(ys) {
+        case Y_EMPTY:               return "EMPTY";
+        case Y_ENTERYBLOCKED:       return "   # ";
+        case Y_OCCUPIED:            return "  *  ";
+        case Y_STOP:                return " *   ";
+        case Y_DEPARTUREBLOCKED:    return "#    ";
+        default:                    return "?????";
+    }
+}
+yardstate getyardstate(int track) {
+    unsigned int *i = indications[CP_Watsonville];
+    
+    switch (track) {
+        case 1:
+                if (OCC(CP_Watsonville_1ETK)) return Y_DEPARTUREBLOCKED;
+                if (OCC(CP_Watsonville_1DTK)) return Y_STOP;
+                if (OCC(CP_Watsonville_1CTK)) return Y_OCCUPIED;
+                if (OCC(CP_Watsonville_1BTK)) return Y_ENTERYBLOCKED;
+                return Y_EMPTY;
+        case 2:
+                if (OCC(CP_Watsonville_2ETK)) return Y_DEPARTUREBLOCKED;
+                if (OCC(CP_Watsonville_2DTK)) return Y_STOP;
+                if (OCC(CP_Watsonville_2CTK)) return Y_OCCUPIED;
+                if (OCC(CP_Watsonville_2BTK)) return Y_ENTERYBLOCKED;
+                return Y_EMPTY;
+        case 3:
+                if (OCC(CP_Watsonville_3ETK)) return Y_DEPARTUREBLOCKED;
+                if (OCC(CP_Watsonville_3DTK)) return Y_STOP;
+                if (OCC(CP_Watsonville_3CTK)) return Y_OCCUPIED;
+                if (OCC(CP_Watsonville_3BTK)) return Y_ENTERYBLOCKED;
+                return Y_EMPTY;
+        case 4:
+                if (OCC(CP_Watsonville_4ETK)) return Y_DEPARTUREBLOCKED;
+                if (OCC(CP_Watsonville_4DTK)) return Y_STOP;
+                if (OCC(CP_Watsonville_4CTK)) return Y_OCCUPIED;
+                if (OCC(CP_Watsonville_4BTK)) return Y_ENTERYBLOCKED;
+                return Y_EMPTY;
+        case 5:
+                if (OCC(CP_Watsonville_5ETK)) return Y_DEPARTUREBLOCKED;
+                if (OCC(CP_Watsonville_5DTK)) return Y_STOP;
+                if (OCC(CP_Watsonville_5CTK)) return Y_OCCUPIED;
+                if (OCC(CP_Watsonville_5BTK)) return Y_ENTERYBLOCKED;
+                return Y_EMPTY;
+        case 6:
+                if (OCC(CP_Watsonville_6ETK)) return Y_DEPARTUREBLOCKED;
+                if (OCC(CP_Watsonville_6DTK)) return Y_STOP;
+                if (OCC(CP_Watsonville_6CTK)) return Y_OCCUPIED;
+                if (OCC(CP_Watsonville_6BTK)) return Y_ENTERYBLOCKED;
+                return Y_EMPTY;
+        case 7:
+                if (OCC(CP_Watsonville_7ETK)) return Y_DEPARTUREBLOCKED;
+                if (OCC(CP_Watsonville_7DTK)) return Y_STOP;
+                if (OCC(CP_Watsonville_7CTK)) return Y_OCCUPIED;
+                if (OCC(CP_Watsonville_7BTK)) return Y_ENTERYBLOCKED;
+                return Y_EMPTY;
+    }
+}
+// Change these two numbers to the pins connected to your encoder.
+//   Best Performance: both pins have interrupt capability
+//   Good Performance: only the first pin has interrupt capability
+//   Low Performance:  neither pin has interrupt capability
+
+// Arduino pins the encoder is attached to. Attach the center to ground.
+//#define ROTARY_PIN1 6
+//#define ROTARY_PIN2 9
+// 10
+//#define ROTARY_SW_PIN 11
+
+#define ROTARY1_PIN1 2
+#define ROTARY1_PIN2 3
+// 4
+#define ROTARY1_SW_PIN 5
+
+#define ROTARY2_PIN1 6
+#define ROTARY2_PIN2 7
+// A0
+#define ROTARY2_SW_PIN A1
+
+// #define ENCODER_FULL_STEP  // Some encoders are Full, others Half Step...
+
+#if defined(ENCODER_FULL_STEP)
+
+// Use the half-step state table (emits a code at 00 and 11)
+const unsigned char ttable[7][4] = {
+  {0x0, 0x2, 0x4,  0x0}, {0x3, 0x0, 0x1, 0x40},
+  {0x3, 0x2, 0x0,  0x0}, {0x3, 0x2, 0x1,  0x0},
+  {0x6, 0x0, 0x4,  0x0}, {0x6, 0x5, 0x0, 0x80},
+  {0x6, 0x5, 0x4,  0x0}
+};
+
+#else
+
+// Use the full-step state table (emits a code at 00 only)
+const unsigned char ttable[7][4] = {
+  {0x3 , 0x2, 0x1,  0x0}, {0x83, 0x0, 0x1,  0x0},
+  {0x43, 0x2, 0x0,  0x0}, {0x3 , 0x5, 0x4,  0x0},
+  {0x3 , 0x3, 0x4, 0x40}, {0x3 , 0x5, 0x3, 0x80}
+};
+
+#endif
+
+volatile unsigned char encoderState[2] = { 0, 0 };
+
+/* Read input pins and process for events. Call this either from a
+ * loop or an interrupt (eg pin change or timer).
+ *
+ * Returns 0 on no event, otherwise 0x80 or 0x40 depending on the direction.
+ */
+unsigned char rotary_process(int isEnter, int pin1, int pin2) {
+  unsigned char encoderPinState = (digitalRead(pin2) * 2) | digitalRead(pin1);
+  encoderState[isEnter] = ttable[encoderState[isEnter] &amp; 0xf][encoderPinState];
+  return (encoderState[isEnter] &amp; 0xc0);
+}
+
+enum StateMachine   { WAITING, TRIGGERED, PROCESSED };
+StateMachine nx[2];
+
+elapsedMillis uitimer = 0;
+
+boolean need2display = true;
+boolean checktrack = false;
+
+boolean process_encoder(int isEnter, int pin1, int pin2, int pb) {
+    unsigned char result = rotary_process(isEnter, pin1, pin2);
+    
+    if (result) { // incremental encoder was turned...
+      if (result == 0x40) {  // RIGHT
+        if (isEnter) yardEnter = max(yardEnter - 1, 1);
+        else         yardExit  = max(yardExit  - 1, 1);
+      } else {               // LEFT
+        if (isEnter) yardEnter = min(yardEnter + 1, 7);
+        else         yardExit  = min(yardExit  + 1, 7);
+      }
+      need2display = true;
+    }
+    
+    byte buttonPos1 = digitalRead(pb);
+    delay(1);
+    byte buttonPos2 = digitalRead(pb);
+    if (buttonPos1 == buttonPos2) {  // debounce
+      // oneshot (press + release is a single trigger)...
+      if ((LOW  == buttonPos1) &amp;&amp; nx[isEnter] == WAITING)   {
+        nx[isEnter] = TRIGGERED;
+      }
+      if ((HIGH == buttonPos1) &amp;&amp; nx[isEnter] == PROCESSED) {
+        nx[isEnter] = WAITING;
+      }
+    }
+    if (nx[isEnter] == TRIGGERED) {
+      need2display = true;
+      checktrack = true;
+      nx[isEnter] = PROCESSED;
+    }
+    if (need2display &amp;&amp; uitimer > 50) {     // need to read and display occupancy for selected yard tracks
+        lcd.setCursor(0, 0); lcd.print("Enter: "); lcd.print(yardEnter, DEC); 
+        if (checktrack) lcd.printf(" %s", ys2s(getyardstate(yardEnter)));
+        
+        lcd.setCursor(0, 1); lcd.print("Exit:  "); lcd.print(yardExit, DEC);
+        if (checktrack) lcd.printf(" %s", ys2s(getyardstate(yardExit)));
+        uitimer = 0;
+        need2display = false;
+        checktrack = false;
+    }
+    return need2display;
+}
+
+void setup_CP_Watsonville(void) {
+    pinMode(ROTARY1_PIN1,   INPUT_PULLUP);
+    pinMode(ROTARY1_PIN2,   INPUT_PULLUP);
+    pinMode(ROTARY1_SW_PIN, INPUT_PULLUP);
+
+    pinMode(ROTARY2_PIN1,   INPUT_PULLUP);
+    pinMode(ROTARY2_PIN2,   INPUT_PULLUP);
+    pinMode(ROTARY2_SW_PIN, INPUT_PULLUP);
+}
+
+bool loop_CP_Watsonville(void) {
+    bool somethingchanged = false;
+    somethingchanged |= process_encoder(1, ROTARY1_PIN1, ROTARY1_PIN2, ROTARY1_SW_PIN);
+    somethingchanged |= process_encoder(0, ROTARY2_PIN1, ROTARY2_PIN2, ROTARY2_SW_PIN);
+
+    somethingchanged = false;
+
+    return somethingchanged;
+}
+
+
+                    </custom>
+                </column>
+            </controlpoint>
+        </ctcpanel>
+
+	    <expander type="PHOTON_A"     address="-1"  device="0"  /> <!-- N/X encoders  -->
+	    <expander type="PHOTON_B"     address="-1"  device="1"  />
+	    <expander type="PHOTON_C"     address="-1"  device="2"  />
+        <expander type="I2CLCD"       address="7"   device="3"  /> <!-- LED Backpack -->
+
+        <expander type="MAX7313"      address="0"   device="4"   /> <!-- Column  1   - Gilroy Caltrain     773 -->
+	    <expander type="MAX7313"      address="1"   device="5"   /> <!-- Column  2   - Gilroy Caltrain     775 -->
+        <expander type="MAX7313"      address="2"   device="6"   /> <!-- Column  3   - Gilroy Interchange  777-->
+	    <expander type="MAX7313"      address="3"   device="7"   /> <!-- Column  4   - Gilroy Interchange  781-->
+        <expander type="MAX7313"      address="4"   device="8"   /> <!-- Column  5   - Luchessa -->
+	    <expander type="MAX7313"      address="5"   device="9"   /> <!-- Column  6   - Luchessa -->
+        <expander type="MAX7313"      address="6"   device="10"  /> <!-- Column  7   - Luchessa -->
+	    <expander type="MAX7313"      address="7"   device="11"  /> <!-- Column  8   - Christopher -->
+        <expander type="MAX7313"      address="8"   device="12"  /> <!-- Column  9   - Christopher -->
+	    <expander type="MAX7313"      address="9"   device="13"  /> <!-- Column  10  - Christopher -->
+        <expander type="MAX7313"      address="10"  device="14"  /> <!-- Column  11  - Corporal -->
+	    <expander type="MAX7313"      address="11"  device="15"  /> <!-- Column  102 - Corporal -->
+        <expander type="MAX7313"      address="12"  device="16"  /> <!-- Column  13  - Sargent     835 -->
+	    <expander type="MAX7313"      address="13"  device="17"  /> <!-- Column  14  - Watsonville 837 -->
+        <expander type="PCF8574"      address="0"   device="18"  /> <!-- Column  15  - Watsonville D   -->
+                                                                    <!-- Column  16  - Watsonville A   -->
+</field>
+</controlpoint>
+
