@@ -1,0 +1,422 @@
+<controlpoint name="CP_Watsonville_S" layout="SPCoast" node="0x0090" FQBN="esp32:esp32:esp32doit-devkit-v1">
+<doc name="1">
+    South end of Watsonville Staging Yard.  MP 90
+
+    Yard ladder, reverse loop and departure track.  See also Watsonville North.
+
+    &lt; Railroad West/North                             Railroad East/South &gt;
+                                                       O-| 904Na
+    Departure &lt;================DAT= ==== 1T1========+==== =========================\
+                                    |-OO 904Sab      \901                            \
+                                                 903T2\                              |
+    Yard Track 1 &gt;=========d==1SAT= ===d-3T2===========d\  YLAD                       |
+                                    |-O 902sa         903\d-903T1                     |
+    Yard Track 2 &gt;=========d==2SAT= ===d 5T2=============d\                          ROCC (reverse LOOP)
+                                    |-O 902sb           905\d                         |
+    Yard Track 3 &gt;=========d==3SAT= ===d 7T2===============d\                         |
+                                    |-O 902sc             907\d                       |
+    Yard Track 4 &gt;=========d==4SAT= ===d 9T2=================d\  OO-| 902Nab         /
+                                    |-O 902sd               909\=d= ===============/
+                           ^    [MC]   ^                    ^
+                          IR           IR                  IR  ('d' = IR Detectors)
+
+    This 'CP' is all within yard limits of Watsonville Staging Yard.
+    There is a MCall for departing trains to contact the dispatcher for authority.
+
+    Trains on a Yard Track exit "Southbound", traverse the reverse loop to become "Northbound"
+    and exit via the departure track and Watsonville North.
+
+    Dwarf Signals control the exit from each Yard Track.
+
+    Optical sensors ('d') are used for Switch Occupancy and Yard Track stopping
+    position and switch fouling detection
+    YLAD = Block detector plus 4x IR (point fouling) + 4x (yard fouling) IR detectors
+    YARDx = Block detector + IR detector   IR detector is used to indicate where to stop a train
+
+    There are 5 switches in CP Watsonville South:
+        SW1 for the reverse loop Departure track (usually left Normal)
+        SW3 ... SW9 for the Yard Track exit ladder
+    Switches are Power Routing, so Turtle does not power frog...
+    Sw 3,5,7, and 9 are all part of the same block detection block
+
+    There are 2 Signals that control traffic - 2 (Yard Track access) and 4 (Departure track access)
+
+     Southbound Approach on Departure Track:  DAT
+     Southbound Approach on Yard Track:  [1-4]SAT
+     Northbound Approach from LOOP: LOOP
+
+    Possible routes:
+        (A) Normal Operations NX:  eNter from Yard_n, exit on DT
+            Leave Yard from ____________ via LOOP and Departure Track
+                        Yard Track 1
+                        Yard Track 2
+                        Yard Track 3
+                        Yard Track 4
+
+            Set switches as desired, S2 RIGHT, S4 LEFT,FLEET
+
+        (B) Infrequent, used during layout operations setup: eNter from DT, exit on Yard_n
+            Enter ____________ from Departure track and LOOP
+              Yard Track 1
+              Yard Track 2
+              Yard Track 3
+              Yard Track 4
+
+            Set switches as desired, S2 LEFT, S4 RIGHT,FLEET
+
+        (C) Turn Train from Departure track and LOOP back out through Departure Track
+
+            Set all switches Normal, S4 RIGHT.
+            When train is in LOOP and 1T1 UNOCCUPIED, set SW1 Reverse, S4 STOP, then S4 LEFT
+
+
+</doc>
+<switches>
+        <switch name="901"  trackcircuit="901T1"  /> <!-- Departure track / reverse loop -->
+        <switch name="903"  trackcircuit="YLAD"   /> <!-- Yard Track 1 -->
+        <switch name="905"  trackcircuit="YLAD"   /> <!-- Yard Track 2 -->
+        <switch name="907"  trackcircuit="YLAD"   /> <!-- Yard Track 3 -->
+        <switch name="909"  trackcircuit="YLAD"   /> <!-- Yard Track 4 -->
+
+</switches>
+<trackcircuits>
+        <!-- Turtle -->
+        <trackcircuit name="901T1" />
+
+        <!-- T1 - from Turtle,            T2 - IR Detector on points        T3 - IR Detector on Yard Lead -->
+        <trackcircuit name="903T1" />     <trackcircuit name="903T2" />     <trackcircuit name="903T3" />
+        <trackcircuit name="905T1" />     <trackcircuit name="905T2" />     <trackcircuit name="905T3" />
+        <trackcircuit name="907T1" />     <trackcircuit name="907T2" />     <trackcircuit name="907T3" />
+        <trackcircuit name="909T1" />     <trackcircuit name="909T2" />     <trackcircuit name="909T3" />
+
+        <!-- IR Detectors for train spotting before end of block -->
+        <trackcircuit name="1SAAT" />
+        <trackcircuit name="2SAAT" />
+        <trackcircuit name="3SAAT" />
+        <trackcircuit name="4SAAT" />
+
+        <!-- cpOD block detectors -->
+        <trackcircuit name="DAT" />
+        <trackcircuit name="1SAT" />
+        <trackcircuit name="2SAT" />
+        <trackcircuit name="3SAT" />
+        <trackcircuit name="4SAT" />
+</trackcircuits>
+<sections>
+    <section name="YLAD" doc="Yard Departure ladder">      <!-- compound collection of the following TCs -->
+        <trackcircuit name="903T1" />     <trackcircuit name="903T2" />
+        <trackcircuit name="905T1" />     <trackcircuit name="905T2" />
+        <trackcircuit name="907T1" />     <trackcircuit name="907T2" />
+        <trackcircuit name="909T1" />     <trackcircuit name="909T2" />
+    </section>
+</sections>
+
+<actuators>
+        <trackpower   name="B"   doc="DCC Booster" />
+        <trackpower   name="R"   doc="Reverse Loop" />
+        <call         name="MC1" doc="On fascia, near Yard Ladder" />
+</actuators>
+
+<signals>
+    <signal name="902" ER="False" FLEET="False" doc="Loop to/from Yard Tracks">
+        <knockdown>
+            <section name="YLAD" />
+        </knockdown>
+        <mast name="NAB" protects="909P" direction="N" doc="Reverse Running on Reverse Loop entering Yard Ladder ...">
+             <route name="LOOP-YL-DT-R"
+                    aspect="DIVERGING_RESTRICTING"
+                    doc="Reverse Loop to Departure Track via Yard ladder - DAT is occupied">
+                <switch       name="901"                         position="R" />
+                <switch       name="903"                         position="N" />
+                <switch       name="905"                         position="N" />
+                <switch       name="907"                         position="N" />
+                <switch       name="909"                         position="N" />
+                <section      name="YLAD" />
+                <trackcircuit name="901T1" />
+                <signal       name="902"                         direction="LEFT"/>
+                <signal       name="904"                         direction="LEFT"/>
+            </route>
+            <route name="LOOP-YL-DT"
+                   aspect="DIVERGING_CLEAR"
+                   doc="Reverse Loop to Departure Track via Yard ladder">
+                <switch       name="901"                         position="R" />
+                <switch       name="903"                         position="N" />
+                <switch       name="905"                         position="N" />
+                <switch       name="907"                         position="N" />
+                <switch       name="909"                         position="N" />
+                <section      name="YLAD" />
+                <trackcircuit name="901T1" />
+                <trackcircuit name="DAT" />
+                <signal       name="902"                         direction="LEFT"/>
+                <signal       name="904"                         direction="LEFT"/>
+            </route>
+            <route name="LOOP-YL-YT1"
+                   aspect="DIVERGING_APPROACH"
+                   doc="Reverse Loop to Yard Track 1">
+                <switch       name="903"                         position="R" />
+                <switch       name="905"                         position="N" />
+                <switch       name="907"                         position="N" />
+                <switch       name="909"                         position="N" />
+                <section      name="YLAD" />
+                <trackcircuit name="903T2" />
+                <trackcircuit name="1SAT" />
+                <signal       name="902"                         direction="LEFT"/>
+            </route>
+            <route name="LOOP-YL-YT2"
+                   aspect="DIVERGING_APPROACH"
+                   doc="Reverse Loop to Yard Track 2">
+                <switch       name="905"                         position="R" />
+                <switch       name="907"                         position="N" />
+                <switch       name="909"                         position="N" />
+                <section      name="YLAD" />
+                <trackcircuit name="905T2" />
+                <trackcircuit name="2SAT" />
+                <signal       name="902"                         direction="LEFT"/>
+            </route>
+            <route name="LOOP-YL-YT3"
+                   aspect="DIVERGING_APPROACH"
+                   doc="Reverse Loop to Yard Track 3">
+                <switch       name="907"                         position="R" />
+                <switch       name="909"                         position="N" />
+                <section      name="YLAD" />
+                <trackcircuit name="907T2" />
+                <trackcircuit name="3SAT" />
+                <signal       name="902"                         direction="LEFT"/>
+            </route>
+            <route name="LOOP-YL-YT4"
+                   aspect="DIVERGING_APPROACH"
+                   doc="Reverse Loop to Yard Track 4">
+                <switch       name="909"                         position="R" />
+                <section      name="YLAD" />
+                <trackcircuit name="909T2" />
+                <trackcircuit name="4SAT" />
+                <signal       name="902"                         direction="LEFT"/>
+            </route>
+        </mast>
+
+        <mast name="SA" protects="3D" direction="S" doc="Dwarf: Leaving Yard Track 1 Southbound into Reverse Loop">
+            <route name="Y1-LOOP"
+                   aspect="APPROACH"
+                   doc="Y1 to LOOP">
+                <switch       name="903"                         position="R" />
+                <switch       name="905"                         position="N" />
+                <switch       name="907"                         position="N" />
+                <switch       name="909"                         position="N" />
+                <section      name="YLAD" />
+                <trackcircuit name="LOOP" />
+                <signal       name="902"                         direction="RIGHT"/>
+            </route>
+        </mast>
+        <mast name="SB" protects="5D" direction="S" doc="Dwarf: Leaving Yard Track 2 Southbound into Reverse Loop">
+            <route name="Y2-LOOP"
+                   aspect="APPROACH"
+                   doc="Y2 to LOOP">
+                <switch       name="905"                         position="R" />
+                <switch       name="907"                         position="N" />
+                <switch       name="909"                         position="N" />
+                <section      name="YLAD" />
+                <trackcircuit name="LOOP" />
+                <signal       name="902"                         direction="RIGHT"/>
+            </route>
+        </mast>
+        <mast name="SC" protects="7D" direction="S" doc="Dwarf: Leaving Yard Track 3 Southbound into Reverse Loop">
+            <route name="Y3-LOOP"
+                   aspect="APPROACH"
+                   doc="Y3 to LOOP">
+                <switch       name="907"                         position="R"  />
+                <switch       name="909"                         position="N"  />
+                <section      name="YLAD" />
+                <trackcircuit name="LOOP" />
+                <signal       name="902"                         direction="RIGHT"/>
+            </route>
+        </mast>
+        <mast name="SD" protects="9D" direction="S" doc="Dwarf: Leaving Yard Track 4 Southbound into Reverse Loop">
+            <route name="Y4-LOOP"
+                   aspect="APPROACH"
+                   doc="Y4 to LOOP">
+                <switch       name="909"                         position="R"    />
+                <section      name="YLAD" />
+                <trackcircuit name="LOOP" />
+                <signal       name="902"                         direction="RIGHT"/>
+            </route>
+        </mast>
+    </signal>
+
+    <signal name="904" ER="False" FLEET="False" doc="Departure Track to/from Reverse Loop">
+         <mast name="NA" protects="1N" direction="N" doc="Reverse Loop to Departure Track">
+            <route name="LOOP-DT"
+                   aspect="CLEAR"
+                   doc="Reverse Loop to Departure Track (usual route)">
+                <switch       name="901"                         position="N"   />
+                <trackcircuit name="901T1" />
+                <trackcircuit name="DAT" />
+                <signal       name="904"                         direction="LEFT"/>
+            </route>
+        </mast>
+
+        <mast name="SAB" protects="1P" direction="S" doc="Southbound on Departure Track (reverse running) to LOOP or YLAD">
+            <route name="RDT-LOOP"
+                   aspect="RESTRICTING"
+                   doc="Southbound (reverse running) direct to Reverse Loop">
+                <switch       name="901"                         position="N"  />
+                <trackcircuit name="901T1" />
+                <trackcircuit name="LOOP" />
+                <signal       name="904"                         direction="RIGHT"/>
+            </route>
+            <route name="RDT-Y-LOOP"
+                   aspect="DIVERGING_RESTRICTING"
+                   doc="Southbound (reverse running) to Reverse Loop via Yard Ladder">
+                <switch       name="901"                         position="R"  />
+                <switch       name="903"                         position="N"  />
+                <switch       name="905"                         position="N"  />
+                <switch       name="907"                         position="N"  />
+                <switch       name="909"                         position="N"  />
+                <trackcircuit name="901T1" />
+                <section      name="YLAD" />
+                <trackcircuit name="LOOP" />
+                <signal       name="902"                         direction="RIGHT"/>
+                <signal       name="904"                         direction="RIGHT"/>
+            </route>
+        </mast>
+     </signal>
+</signals>
+
+<indications>
+        <switch     name="901"     word="0" bit="0" bits="2" />
+        <switch     name="903"     word="0" bit="2" bits="2"/>
+        <switch     name="905"     word="0" bit="4" bits="2"/>
+        <switch     name="907"     word="0" bit="6" bits="2"/>
+        <switch     name="909"     word="1" bit="0" bits="2" />
+        <signal     name="902"     word="1" bit="2" bits="3" />
+        <signal     name="904"     word="1" bit="5" bits="3" />
+
+        <indication name="903T2"   word="2" bit="0" />
+        <indication name="905T2"   word="2" bit="1" />
+        <indication name="907T2"   word="2" bit="2" />
+        <indication name="909T2"   word="2" bit="3" />
+        <indication name="903T3"   word="2" bit="4" />
+        <indication name="905T3"   word="2" bit="5" />
+        <indication name="907T3"   word="2" bit="6" />
+        <indication name="909T3"   word="2" bit="7" />
+
+        <indication name="1SAT"    word="3" bit="0" />
+        <indication name="2SAT"    word="3" bit="1" />
+        <indication name="3SAT"    word="3" bit="2" />
+        <indication name="4SAT"    word="3" bit="3" />
+        <indication name="1SAAT"   word="3" bit="4" />
+        <indication name="2SAAT"   word="3" bit="5" />
+        <indication name="3SAAT"   word="3" bit="6" />
+        <indication name="4SAAT"   word="3" bit="7" />
+
+        <indication name="901T1"   word="4" bit="0" />
+        <indication name="DAT"     word="4" bit="1" />
+        <indication name="YLAD"    word="4" bit="2" />
+
+        <indication name="MC1"     word="4" bit="7" />
+
+        <trackpower name="R"       word="5" bit="0"  bits="4" doc="Auto Reverse for return loop"/>
+        <trackpower name="B"       word="5" bit="4"  bits="4" doc="DCC CB/Booster"/>
+
+</indications>
+
+<controls>
+        <switch     name="901"     word="0" bit="0" bits="2" />
+        <switch     name="903"     word="0" bit="2" bits="2"/>
+        <switch     name="905"     word="0" bit="4" bits="2"/>
+        <switch     name="907"     word="0" bit="6" bits="2"/>
+        <switch     name="909"     word="1" bit="0" bits="2" />
+        <signal     name="902"     word="1" bit="2" bits="3" />
+        <signal     name="904"     word="1" bit="5" bits="3" />
+
+        <trackpower name="R"       word="2" bit="0"  bits="2" doc="Auto Reverse for return loop"/>
+        <trackpower name="B"       word="2" bit="2"  bits="2" doc="DCC CB/Booster"/>
+
+        <control    name="MC1"     word="2" bit="7" />
+</controls>
+
+<field name="fieldunit">
+        <turtle name="901"         device="0" bit="0"  bits="4" />
+        <turtle name="903"         device="0" bit="4"  bits="4" />
+        <turtle name="905"         device="0" bit="8"  bits="4" />
+        <turtle name="907"         device="0" bit="12" bits="4" />
+        <turtle name="909"         device="1" bit="1"  bits="4" />
+
+        <trackpower name="R"       device="1" bit="4"  bits="4" doc="Auto Reverse for return loop"/>
+        <trackpower name="B"       device="1" bit="8"  bits="4" doc="DCC CB/Booster"/>
+
+        <output  name="MC1"        device="1" bit="12" /> <!-- Outputs -->
+        <output  name="XO11"       device="1" bit="13" />
+        <output  name="XO12"       device="1" bit="14" />
+        <output  name="XO13"       device="1" bit="15" />
+
+        <input   name="YLT"        device="2" bit="0"  /> <!-- cpODs -->
+        <input   name="DAT"        device="2" bit="1"  />
+        <input   name="XI22"       device="2" bit="2"  />
+        <input   name="XI23"       device="2" bit="3"  />
+        <input   name="903T2"      device="2" bit="4"  /> <!-- IR Detectors -->
+        <input   name="905T2"      device="2" bit="5"  />
+        <input   name="907T2"      device="2" bit="6"  />
+        <input   name="909T2"      device="2" bit="7"  />
+        <input   name="903T3"      device="2" bit="8"  /> <!-- IR Detectors -->
+        <input   name="905T3"      device="2" bit="9"  />
+        <input   name="907T3"      device="2" bit="10" />
+        <input   name="909T3"      device="2" bit="11" />
+        <input   name="1SAT"       device="2" bit="12" /> <!-- cpODs -->
+        <input   name="2SAT"       device="2" bit="13" />
+        <input   name="3SAT"       device="2" bit="14" />
+        <input   name="4SAT"       device="2" bit="15" />
+
+        <input   name="1SAAT"      device="3" bit="0"  /> <!-- cpODs -->
+        <input   name="2SAAT"      device="3" bit="1"  />
+        <input   name="3SAAT"      device="3" bit="2"  />
+        <input   name="4SAAT"      device="3" bit="3"  />
+
+
+        <signal name="902">
+            <mast  name="902NAB" bits="2"  type="2HeadColorLight">
+                <output  name="902NAB1"     device="3" bit="4" />
+                <output  name="902NAB2"     device="3" bit="5" />
+                <output  name="902NAB3"     device="3" bit="6" />
+                <output  name="902NAB4"     device="3" bit="7" />
+            </mast>
+            <mast  name="902SA" bits="2"  type="1HeadColorLight">
+                <output  name="902SA1"     device="3" bit="8" />
+                <output  name="902SA2"     device="3" bit="9" />
+            </mast>
+            <mast  name="902SB" bits="2"  type="1HeadColorLight">
+                <output  name="902SB1"     device="3" bit="10" />
+                <output  name="902SB2"     device="3" bit="11" />
+            </mast>
+            <mast  name="902SC" bits="2"  type="1HeadColorLight">
+                <output  name="902SC1"     device="3" bit="12" />
+                <output  name="902SC2"     device="3" bit="13" />
+            </mast>
+            <mast  name="902SD" bits="2"  type="1HeadColorLight">
+                <output  name="902SD1"     device="3" bit="14" />
+                <output  name="902SD2"     device="3" bit="15" />
+            </mast>
+        </signal>
+
+        <signal name="904">
+            <mast  name="904NA" bits="2"  type="1HeadColorLight">
+                <output  name="904NA1"     device="4" bit="0" />
+                <output  name="904NA2"     device="4" bit="1" />
+            </mast>
+            <!-- 4.2 and 4.3 unused -->
+            <mast  name="904SAB" bits="4"  type="2HeadColorLight">
+                <output  name="904SAB1"    device="4" bit="4" />
+                <output  name="904SAB2"    device="4" bit="5" />
+                <output  name="904SAB3"    device="4" bit="6" />
+                <output  name="904SAB4"    device="4" bit="7" />
+            </mast>
+        </signal>
+
+	    <expander type="MCP23017"     address="0x00"  device="0" size="16" />
+	    <expander type="MCP23017"     address="0x01"  device="1" size="16" />
+	    <expander type="MCP23017"     address="0x02"  device="2" size="16" />
+	    <expander type="MCP23017"     address="0x03"  device="3" size="16" />
+	    <expander type="MCP23017"     address="0x04"  device="4" size="16" />
+</field>
+</controlpoint>
+
+
