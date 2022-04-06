@@ -339,7 +339,7 @@
         <turtle name="903"         device="0" bit="4"  bits="4" />
         <turtle name="905"         device="0" bit="8"  bits="4" />
         <turtle name="907"         device="0" bit="12" bits="4" />
-        <turtle name="909"         device="1" bit="1"  bits="4" />
+        <turtle name="909"         device="1" bit="0"  bits="4" />
 
         <trackpower name="R"       device="1" bit="4"  bits="4" doc="Auto Reverse for return loop"/>
         <trackpower name="B"       device="1" bit="8"  bits="4" doc="DCC CB/Booster"/>

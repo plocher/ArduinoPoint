@@ -15,14 +15,7 @@ from io import StringIO
 import re
 from natsort import natsorted
 
-#from mako.template import Template
-from jinja2 import Environment, PackageLoader, select_autoescape
-env = Environment(
-    loader=PackageLoader("simplehydrate"),
-    autoescape=select_autoescape(['html', 'xml']),
-    trim_blocks=True,
-    lstrip_blocks=True,
-)
+from mako.template import Template
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -2105,8 +2098,7 @@ def extant_file(x):
 
 def write_template(args, dirname, fname):
     # print("Template:  using {}".format(args.templatename[0]))
-    tm = env.get_template(args.templatename[0])
-    # tm = Template(filename=args.templatename[0])
+    tm = Template(filename=args.templatename[0])
     result = tm.render(args=args, cp=cp)
     # remove empty lines
     lines = result.splitlines()
@@ -2201,31 +2193,31 @@ if __name__ == "__main__":
             write_template(args, d, f)
         elif args.type == 'html':
             if args.templatename is None:
-                args.templatename = ["html.template.jinja2"]
+                args.templatename = ["mako_templates/html.template.mako"]
             write_template(args, d, f)
         elif args.type == 'md':
             if args.templatename is None:
-                args.templatename = ["md.template.jinja2"]
+                args.templatename = ["mako_templates/md.template.mako"]
             write_template(args, d, f)
         elif args.type == 'jmri':
             if args.templatename is None:
-                args.templatename = ["jmri.template.jinja2"]
+                args.templatename = ["mako_templates/jmri.template.mako"]
             write_template(args, d, f)
         elif args.type == 'decoder':
             if args.templatename is None:
-                args.templatename = ["codelineDecoder.template.jinja2"]
+                args.templatename = ["mako_templates/codelineDecoder.template.mako"]
             write_template(args, d, f)
         elif args.type == 'sketch':
             if args.templatename is None:
-                args.templatename = ["fieldsketch.template.jinja2"]
+                args.templatename = ["mako_templates/fieldsketch.template.mako"]
             write_template(args, d, f)
         elif args.type == 'json':
             if args.templatename is None:
-                args.templatename = ["sketch.json.template.jinja2"]
+                args.templatename = ["mako_templates/sketch.json.mako"]
             write_template(args, d, 'sketch.json')
         elif args.type == 'ctc':
             if args.templatename is None:
-                args.templatename = ["ctcPanel.template.jinja2"]
+                args.templatename = ["mako_templates/ctcPanel.template.mako"]
             write_template(args, d, f)
 
 
