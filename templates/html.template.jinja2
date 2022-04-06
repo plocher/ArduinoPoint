@@ -1,0 +1,161 @@
+<html>
+<title>{{cp.name}}</title>
+<style>
+table {
+    border: 2px solid black;
+    border-collapse: collapse;
+}
+
+td {
+  border: 1px solid grey;
+}
+
+th {
+  border: 1px solid black;
+  background: grey10;
+}
+
+</style>
+<body>
+
+<H1>Control Point Documentation for {{cp.name}}</H1>
+
+<pre>
+{% for d in cp.DocList() %}
+    {{d | escape}}
+{% endfor %}
+</pre>
+
+<H1>Code Line for {{cp.name}} ({{cp.getNode()}})</H1>
+<H2>Control Packet</H2>
+
+<blockquote>
+    {{ cp.controls.towiki() }}
+</blockquote>
+
+<H2>Indication Packet</H2>
+<blockquote>
+    {{cp.indications.towiki()}}
+</blockquote>
+
+{% for d in cp.getDependencyList() %}
+    {% if d.name != cp.name %}
+    <p> Depends on {{d.name}} </p>
+    {{ d.indications.towiki() }}
+    {% endif %}
+{% endfor %}
+
+<H1>Layout Connections for {{cp.name}}</H1>
+{% for k, v in cp.FieldunitList() %}
+    {% if v.name == 'fieldunit' %}
+        <H2>Expanders</H2>
+        <H3>Assignmenmts</H3>
+        <blockquote>
+            {{ v.towiki() }}
+        </blockquote>
+
+        <H3>Wiring</H3>
+        <blockquote>
+            {{ v.expanders.toDetailedWiki() }}
+        </blockquote>
+    {% endif %}
+{% endfor %}
+
+<H1>Signals and Routes for {{cp.name}}</H1>
+<blockquote>
+    <code>
+{% for fk, fv in cp.field.children.items() %}
+    {% if fk == 'fieldunit' %}
+        {% for smname, sm in fv.signals.children.items() %}
+            {% set  signalFullName = '{cpname}:{smname}'.format(cpname=cp.name, smname=smname)  %}
+            {% set  siga = sm.sig  %}
+            {% set  docstring = siga.doc  %}
+            {% if docstring is none %}
+                {% set  docstring = ''  %}
+            {% endif %}
+                <H2> Signal {{smname}}: {{docstring | escape}} </H2>
+                <blockquote>
+                    <p>
+            {% if (siga.fleet is not none) and (siga.er is not none) and (siga.fleet.lower() != 'false') and (siga.er.lower() != 'false') %}
+                Stick Relays [
+                {% if (siga.fleet.lower() == 'true') and (siga.er.lower() == 'true') %}
+                    FLEET and ER
+                {% elif (siga.fleet.lower() == 'true') and (siga.er.lower() != 'true'): %}
+                    FLEET
+                {% elif (siga.fleet.lower() == 'true') and (siga.er.lower() != 'true'): %}
+                    ER
+                {% endif %}
+                ]
+            {% else: %}
+                Stick Relays [No Engine Return, No Fleeting]
+            {% endif %}
+                </p>
+
+            {% for shname, sh in sm.children.items() %}
+                {% set  mastFullName = '{cpname}:{shname}'.format(cpname=cp.name, shname=shname)  %}
+                {% set  heada = siga.getMast(mastFullName)  %}
+                {% set  docstring = heada.doc  %}
+                {% if docstring is none %}
+                    {% set  docstring = ''  %}
+                {% endif %}
+                    <H3>  Mast {{shname}}</H3>
+                    <blockquote>
+                    Type: {{sh.type}} <br>{{docstring | escape}} <br>
+                    <p></p>
+
+                    <table border="1">
+                {% for rk, rv in heada.route.children.items() %}
+                    {% set  docstring = rv.doc  %}
+                    {% if docstring is none %}
+                        {% set  docstring = ''   %}
+                    {% endif %}
+                        <tr>
+                        <td align="left" colspan=3>
+                            &nbsp;&nbsp;<H3>&nbsp;&nbsp;Route {{rk}}</H3>
+                            &nbsp;&nbsp;{{docstring | escape }}
+
+                    {% if rv.default_aspect is none %}
+                        {% set  longform=True  %}
+                    {% else: %}
+                        {% set  longform=False  %}
+                            <br>&nbsp;&nbsp;Aspect <b>{{rv.default_aspect }}</b>
+                    {% endif %}
+                            <p></p>
+                        </td></tr>
+                        <!-- table border="1" -->
+                            <tr><th>Switches</th><th>Tracks</th><th>Signals</th></tr>
+                            <tr><td>
+                        {% for val, item in rv.children.items() %}
+                            {% if item.mytype == "SW_Route" %}
+                            &nbsp;&nbsp;<code>{{ item.toHTML(longform) }}</code>&nbsp;&nbsp;<BR>
+                            {% endif %}
+                        {% endfor %}
+                        </td><td>
+                        {% for val, item in rv.children.items() %}
+                            {% if item.mytype != "SW_Route" and item.mytype != "SIG_Route" %}
+                            &nbsp;&nbsp;<code>{{ item.toHTML(longform) }}</code>&nbsp;&nbsp;<BR>
+                            {% endif %}
+                        {% endfor %}
+                        </td><td>
+                        {% for val, item in rv.children.items() %}
+                            {% if item.mytype == "SIG_Route" %}
+                            &nbsp;&nbsp;<code>{{ item.toHTML(longform) }}</code>&nbsp;&nbsp;<BR>
+                            {% endif %}
+                        {% endfor %}
+                        </td></tr><!-- /table -->
+                        <p></p>
+
+                {% endfor %}
+                    </table>
+                    </blockquote>
+                    <p>&nbsp;</p>
+            {% endfor %}
+            </blockquote>
+        {% endfor %}
+    {% endif %}
+{% endfor %}
+    </code>
+</blockquote>
+</body>
+</html>
+

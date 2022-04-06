@@ -27,18 +27,18 @@ Generate Arduino Sketch for a Model Railroad Control Point from an XML template
 
     Yard ladder, reverse loop and departure track.  See also Watsonville North.
 
-    &lt; Railroad West/North                             Railroad East/South &gt;
+    < Railroad West/North                             Railroad East/South >
                                                        O-| 904Na
-    Departure &lt;================DAT= ==== 1T1========+==== =========================\
+    Departure <================DAT= ==== 1T1========+==== =========================\
                                     |-OO 904Sab      \901                            \
-                                                 903T2\                              |
-    Yard Track 1 &gt;=========d==1SAT= ===d-3T2=====d======\  YLAD                       |
+                                                 903T2\                               |
+    Yard Track 1 >=========d==1SAT= ===d-3T2=====d======\  YLAD                       |
                                     |-O 902sa         903\d-903T1                     |
-    Yard Track 2 &gt;=========d==2SAT= ===d 5T2=====d========\                          LOOP
+    Yard Track 2 >=========d==2SAT= ===d 5T2=====d========\                          LOOP
                                     |-O 902sb           905\d                         |
-    Yard Track 3 &gt;=========d==3SAT= ===d 7T2======d=========\                         |
+    Yard Track 3 >=========d==3SAT= ===d 7T2======d=========\                         |
                                     |-O 902sc             907\d                       |
-    Yard Track 4 &gt;=========d==4SAT= ===d 9T2======d===========\  OO-| 902Nab         /
+    Yard Track 4 >=========d==4SAT= ===d 9T2======d===========\  OO-| 902Nab         /
                                     |-O 902sd               909\=d= ===============/
 
                  SIG 902     SIG 904    MCall
@@ -46,21 +46,30 @@ Generate Arduino Sketch for a Model Railroad Control Point from an XML template
 ```
 ### Switches
 
-Attributes Required:
-  * 'name'          # odd ordinal number
-Attributes Optional
-  * 'normal'        # name NW
-  * 'reverse'       # name RW
-  * 'motor'         # Tname
-  * 'trackcircuit'  # name T1  - Associated TC used for point locking
-  * 'slaveto'       # None      - Another switch (for a crossover or derail...)
-  * 'invert'        # None      - swap Normal and Reverse motor polarity
-  * 'indication'    # None      - "OtherCP:T1" Remote feedback from another CP's indication packet, no motor control
+```ebnf
+sw_name = odd_ordinal ;                                (* switches are named with ODD numbers *)
+tc_name = ordinal, 'T', [ ordinal ] ;                  (* Track Circuits usually end in 'T' *)
+a_name  = 'T', ordinal, { ordinal } ;                  (* Actuators start with 'T' *)
+cp_name = alpha, { alpha | digit | '_' } ;             (* Control Point names *)
+ind_name= [ cp_name, ':' ], a_name ;                   (* Indications can optionally refer to other control points *)
+
+direction = 'normal' | 'reverse' ;                     (* default normal *)
+invert    = 'invert' ;                                 (* default is not inverted *)
+acutator  = 'motor',        '=', '"', a_name,   '"' ;  (* default 'T'sw_name *)
+tc        = 'trackcircuit', '=', '"', tc_name,  '"' ;  (* default is none *)
+slave     = 'slaveto',      '=', '"', sw_name,  '"' ;  (* default is independent *)
+indication= 'indication',   '=', '"', ind_name, '"' ;  (* default is own indication *)
+
+
+attributes = { [ direction ] | [ actuator ] | [ tc ] | [ slave ] | [ invert ] | [ indication ] }
+switch = '<', 'switch' 'name', '=', sw_name, attributes, '/>';
+
+```
 
  ```xml
         <switches>
             <switch name="901"  trackcircuit="901T1" /> <!-- Departure track / reverse loop -->
-            <switch name="903"  trackcircuit="YLAD"  /> <!-- Yard Track 1 -->
+            <switch name="903"  trackcircuit="YLAD"  /> <!-- Yard Track 1 and Yard Ladder Section (group of TCs)-->
             <switch name="905"  trackcircuit="YLAD"  /> <!-- Yard Track 2 -->
             <switch name="907"  trackcircuit="YLAD"  /> <!-- Yard Track 3 -->
             <switch name="909"  trackcircuit="YLAD"  /> <!-- Yard Track 4 -->
@@ -123,9 +132,9 @@ Attributes Required:
   * 'name'          # MC num for maintainer calls -or-
   * 'name'          # alphanum for arbitrary actuators
 
-```xml
-        Do something like light a lamp at the control point, state is shown in indication packets
+Do something like light a lamp at the control point, state is shown in indication packets
 
+```xml
         <actuators>
                 <call         name="MC1" />
                 <actuator     name="GATE1" />
@@ -370,7 +379,8 @@ Example logic flow:
      <unused                    word="2" bit="6" />
      <mcall        name="MC1"   word="2" bit="7" />
 </controls>
-
+```
+```xml
 <indications>
      <switch       name="901"   word="0" bit="0" bits="2">
        <!-- Switches imply both a N and a R bit: -->
@@ -421,10 +431,12 @@ Example logic flow:
 
   6. Finally, enumerate the IO expanders
 ```xml
+<field name="fieldunit">
+        ...
 	    <expander type="MCP23017"     address="0x00"  device="0" size="16" />
 	    <expander type="MCP23017"     address="0x01"  device="1" size="16" />
 	    <expander type="MCP23017"     address="0x02"  device="2" size="16" />
 	    <expander type="MCP23017"     address="0x03"  device="3" size="16" />
 	    <expander type="MCP23017"     address="0x04"  device="4" size="16" />
-
+</field>
 ```

@@ -3,20 +3,23 @@
 # rehydrate a control point from XML
 # TODO: Add sections/section with list of TCs to aggregate
 
-__author__  = 'plocher'
-__version__ = '0.2'
-
 from lxml import etree
-import argparse, sys, os
+import argparse
+import sys
+import os
 import datetime
 import collections
 import pprint
-from io import StringIO
 import re
+from io import StringIO
 from natsort import natsorted
-
-#from mako.template import Template
 from jinja2 import Environment, PackageLoader, select_autoescape
+
+
+__author__  = 'plocher'
+__version__ = '0.3'
+
+
 env = Environment(
     loader=PackageLoader("simplehydrate"),
     autoescape=select_autoescape(['html', 'xml']),
@@ -66,21 +69,24 @@ class SimpleList(object):
         self.fieldname = fieldname
         self.children  = {}
 
-    def add(self, child, list = None):
-        if list is None:
-            list = self.children
-        if child.name not in list:
-            list[child.name] = child
+    def add(self, child, mylist = None):
+        if mylist is None:
+            mylist = self.children
+        if child.name not in mylist:
+            mylist[child.name] = child
             # print("Add: {} {}: child: {}".format(self.mytype, self.fieldname, child.toString()))
         else:
-            print("Error: {} {}: Can not add a duplicate child: {}".format(self.mytype, self.fieldname, child.toString()))
+            print("Error: {type} {field}: Can not add a duplicate child: {name}".format(
+                type=self.mytype,
+                field=self.fieldname,
+                name=child.toString()))
 
     def __str__(self):
-        s = "{blank:<{indent}}{type:<8}: cp: {cpname} children: {num}".format(blank='', indent=indent, type=self.mytype,
-                                                                              cpname=self.cpname,
-                                                                              num=len(self.children))
+        s = "{type:<8}: cp: {cpname} children: {num}".format(
+            type=self.mytype,
+            cpname=self.cpname,
+            num=len(self.children))
         for k, v in self.children.items():
-            cs = ''
             try:
                 cs = v.toString()
             except AttributeError:
@@ -89,7 +95,7 @@ class SimpleList(object):
         return s
 
     def toString(self, indent=0):
-        return str(self)
+        return "{blank:<{indent}}".format(blank='', indent=indent) + str(self)
 
     def totext(self):
         s=''
@@ -135,6 +141,7 @@ class SimpleList(object):
             except AttributeError:
                 pass
 
+
 class SimpleNamedList(SimpleList):
     def __init__(self, cpname, xml):
         self.name = xml.attrib.get("name")
@@ -148,12 +155,12 @@ class SimpleNamedList(SimpleList):
     def towiki(self):
         return self.toString()
 
-
     def totext(self):
         return self.toString()
 
+
 class SimpleNamedTypedList(SimpleList):
-    def __init__(self, cpname, name, mytype): # was (...cpname, mytype, name...)
+    def __init__(self, cpname, name, mytype):  # was (...cpname, mytype, name...)
         super(SimpleNamedTypedList, self).__init__(cpname, name, mytype)
         self.name = name
 
@@ -165,7 +172,6 @@ class SimpleNamedTypedList(SimpleList):
     def towiki(self):
         return self.toString()
 
-
     def totext(self):
         return self.toString()
 
@@ -176,22 +182,21 @@ class IOCollection(SimpleNamedTypedList):
         self.bits      = 8
         self.units     = 'Byte'
         self.table     = [[0 for x in range(self.bits+1)] for y in range(self.num+1)]
-        self.endat     = self.num;
+        self.endat     = self.num
 
-    def add(self, child, list = None):
-        super(IOCollection, self).add(child, list)
+    def add(self, child, mylist = None):
+        super(IOCollection, self).add(child, mylist)
         #print("IOCollection.Add [{}, {}] {}\n".format(self.bits, self.num, child.toString()))
         self.table[child.device][child.bit] = child.name + child.suffix
 
     def sort(self):
-        d = dict(sorted(self.children.items(), key=lambda item: item[1]))
-        self.children = d
+        self.children = dict(sorted(self.children.items(), key=lambda item: item[1]))
         self.endat = self.num
         for device in range(self.num - 1, -1, -1):
             used = False
             for bit in range(self.bits):
                 v = self.table[device][bit]
-                if (not isinstance(v, int)):
+                if not isinstance(v, int):
                     used = True
             if used:
                 self.endat = device
@@ -239,7 +244,7 @@ class IOCollection(SimpleNamedTypedList):
                 output.write(prepend)
                 prepend = prepend4
                 v = self.table[device][bit]
-                if (isinstance(v, int)):
+                if isinstance(v, int):
                     v = '- - -'
                 if (len(v) > 2) and (v[1] == '_') and ((v[0] == 'I') or (v[0] == 'O')):
                     v = v[:1].lower() + ' ' + v[2:]
@@ -317,30 +322,30 @@ class Indications(IOCollection):
     def __init__(self, cpname):
         super(Indications, self).__init__(cpname, None, "Indications", 10)
 
-    def addI(self, name, xml, list=None):
-        super(Indications, self).add(Indication(name, xml), list)
+    def addI(self, name, xml, mylist=None):
+        super(Indications, self).add(Indication(name, xml), mylist)
 
 
 class Indication(IOData):
     def __init__(self, cpname, xml):
         n = xml.attrib['name']
-        d = xml.attrib['word']
+        w = xml.attrib['word']
         b = xml.attrib['bit']
-        super(Indication, self).__init__(cpname, None, "Indication", n, "K", d, b)
+        super(Indication, self).__init__(cpname, None, "Indication", n, "K", w, b)
 
 class Controls(IOCollection):
     def __init__(self, cpname):
         super(Controls, self).__init__(cpname, None, "Controls", 10)
 
-    def addC(self, name, xml, list=None):
-        super(Controls, self).add(Control(name, xml), list)
+    def addC(self, name, xml, mylist=None):
+        super(Controls, self).add(Control(name, xml), mylist)
 
 class Control(IOData):
     def __init__(self, cpname, xml):
         n = xml.attrib['name']
-        d = xml.attrib['word']
+        w = xml.attrib['word']
         b = xml.attrib['bit']
-        super(Control, self).__init__(cpname, None, "Control", n, "S", d, b)
+        super(Control, self).__init__(cpname, None, "Control", n, "S", w, b)
 
 class FieldUnit(IOCollection):
     def __init__(self, cpname, name):
@@ -359,7 +364,7 @@ class FieldUnit(IOCollection):
         self.signals    = SimpleList(  self.cpname, name, "SignalList")
         self.defines    = {}
 
-    def add(self, child, list = None):
+    def add(self, child, mylist = None):
         super(FieldUnit, self).add(child)
         self.iomap[child.device][child.bit] = child.io
         self.table[child.device][child.bit] = '{}_{}'.format(child.io, child.name)
@@ -387,7 +392,7 @@ class FieldUnit(IOCollection):
             output.write("    DDDevice {:<2}: ".format(device))
             for bit in range(self.bits):
                 v = self.iomap[device][bit]
-                if (isinstance(v, int)):
+                if isinstance(v, int):
                     v='-'
                 output.write(v)
             output.write("\n")
@@ -405,7 +410,7 @@ class FieldUnit(IOCollection):
             output.write("** <code>Device {:<2}: ".format(device))
             for bit in range(self.bits):
                 v = self.iomap[device][bit]
-                if (isinstance(v, int)):
+                if isinstance(v, int):
                     v = '-'
                 output.write(v)
             output.write("</code>\n")
@@ -415,8 +420,8 @@ class FieldUnit(IOCollection):
 
     def sort(self):
         self.shrink()
-        d = sorted(self.children.items(), key=lambda v: (v.device * 16 + v.bit))
-        self.children = collections.OrderedDict(d)
+        sd = sorted(self.children.items(), key=lambda v: (v.device * 16 + v.bit))
+        self.children = collections.OrderedDict(sd)
         self.expanders.sort()
         for k, v in self.children.items():
             try:
@@ -446,7 +451,7 @@ class FieldUnit(IOCollection):
                 used = False
                 for bit in range(self.bits):
                     v = self.iomap[device][bit]
-                    if (not isinstance(v, int)):
+                    if not isinstance(v, int):
                         used = True
                 if used:
                     self.endat = device
@@ -463,16 +468,16 @@ class FieldIO(IOData):
 class Input(FieldIO):
     def __init__(self, cpname, fieldname, xml):
         n = xml.attrib['name']
-        d = xml.attrib['device']
+        w = xml.attrib['device']
         b = xml.attrib['bit']
-        super(Input, self).__init__(cpname, fieldname, "Input", n, d, b, 'I')
+        super(Input, self).__init__(cpname, fieldname, "Input", n, w, b, 'I')
 
 class Output(FieldIO):
     def __init__(self, cpname, fieldname, xml):
         n = xml.attrib['name']
-        d = xml.attrib['device']
+        w = xml.attrib['device']
         b = xml.attrib['bit']
-        super(Output, self).__init__(cpname, fieldname, "Output", n, d, b, 'O')
+        super(Output, self).__init__(cpname, fieldname, "Output", n, w, b, 'O')
         self.type = xml.attrib.get('type')
 
 class SignalMast(SimpleNamedTypedList):
@@ -535,7 +540,7 @@ class SignalMastHead(SimpleList):
 
 class ExpanderList(IOCollection):
     def __init__(self, cpname, fieldname, field):
-        #print('Create ExpanderList: ', cpname, fieldname)
+        # print('Create ExpanderList: ', cpname, fieldname)
         super(ExpanderList, self).__init__(cpname, fieldname, "Expanders", 64)
         self.fieldname = fieldname
         self.field = field
@@ -595,7 +600,7 @@ class ExpanderList(IOCollection):
             output.write('    <th>  Signal </th>\n\n')
             output.write('    <th>  Bit    </th>\n\n')
             output.write('    <th>  Signal </th>\n\n')
-            if (int(size) > 8):
+            if int(size) > 8:
                 output.write('    <th>  Bit    </th>\n\n')
                 output.write('    <th>  Signal </th>\n\n')
                 output.write('    <th>  Bit    </th>\n\n')
@@ -640,9 +645,9 @@ class ExpanderList(IOCollection):
                 prefix = '<tr>\n'
                 for shift in 12,8,4,0: #for shift in 0,4,8,12:
                     shiftedbit = bit + shift
-                    if (shiftedbit) < b:
+                    if shiftedbit < b:
                         v = self.field.table[count - 1][shiftedbit]
-                        if (isinstance(v, int)):
+                        if isinstance(v, int):
                             v = '&nbsp;&nbsp;- - -'
                         if (len(v) > 2) and (v[1] == '_') and ((v[0].upper() == 'I') or (v[0].upper() == 'O')):
                             v = v[:1].lower() + ' ' + v[2:]
@@ -691,12 +696,12 @@ class ExpanderList(IOCollection):
                 for shift in 0,4,8,12:
                     if (bit + shift) < b:
                         v = self.field.table[count - 1][bit + shift]
-                        if (isinstance(v, int)):
+                        if isinstance(v, int):
                             v = '- - -'
                         if (len(v) > 2) and (v[1] == '_') and ((v[0] == 'I') or (v[0] == 'O')):
                             v = v[:1].lower() + ' ' + v[2:]
                         if bit + shift == 0:
-                            if (i2caddr != -1):
+                            if i2caddr != -1:
                                 output.write('{:<2} |'.format(i2caddr))
                             else:
                                 output.write('{:<2} |'.format("na"))
@@ -740,12 +745,12 @@ class ExpanderList(IOCollection):
                 if (bit == 13) or (bit == 9) or (bit == 5) or (bit == 1):
                     sep=', '
                     v = ''
-                    if (s == '0111'):
+                    if s == '0111':
                         v = "FieldIO::TURTLE"
                         sep = ',  '
-                    elif (s == '0000'):
+                    elif s == '0000':
                         v = "FieldIO::OUTPUTS"
-                    elif (s == '1111'):
+                    elif s == '1111':
                         v = "FieldIO::INPUTS "
                     else:
                         v = "FieldIO:PT_" + s
@@ -771,15 +776,15 @@ class ExpanderList(IOCollection):
 
 class Expander(IOData):
     def __init__(self, cpname, fieldname, xml):
-        d = xml.attrib['device']
+        w = xml.attrib['device']
         a = xml.attrib['address']
         t = xml.attrib['type']
         s = xml.attrib.get("size")
-        n = '{}'.format(d)
+        n = '{}'.format(w)
         if s is None:
             s = '8'
 
-        super(Expander, self).__init__(cpname, fieldname, "Expander", n, "_E", d, s)
+        super(Expander, self).__init__(cpname, fieldname, "Expander", n, "_E", w, s)
         self.initstring=''
         self.type = t
         self.size = s
@@ -787,7 +792,7 @@ class Expander(IOData):
 
     def address(self):           return self.addr
 
-    def toString(self):
+    def toString(self, indent=0):
         return "{}: type: {:<12} init: {:<8} size: {:<8}".format(super(Expander, self).toString(), self.type, self.initstring, self.size)
 
 
@@ -806,9 +811,9 @@ class ApplianceList(SimpleList):
         self.sig = {}               # Signals
         self.mast = {}              # Heads
 
-    def toString(self):
+    def toString(self, indent=0):
         s = "{:<8}: cp: {} name: {}".format(
-            self.mytype, self.cpname, self.name)
+            self.mytype, self.cpname, 'ApplianceList')
         for k,v in self.children.items():
             s = s + '\n\t\tchildren:   ' + v.toString()
         for k,v in self.tc.items():
@@ -906,7 +911,7 @@ class SIG_Appliance(SimpleList):
                 return mast
         return None
 
-    def toString(self):
+    def toString(self, indent=0):
         s = "{:<8}: cp: {} name: {} (er: {} fleet: {})".format(
             self.mytype, self.cpname, self.name, self.er, self.fleet)
         for k, v in self.knockdown.children.items():
@@ -927,7 +932,7 @@ class MAST_Appliance(SimpleList):
         self.doc = xml.attrib.get("doc")
         #print('----{} {}----\nDoc: {}\n'.format(self.mytype, self.name, self.doc))
 
-    def toString(self):
+    def toString(self, indent=0):
         s = "{:<8}: cp: {} name: {} direction: {} bits: {}".format(
             self.mytype, self.cpname, self.name, self.direction, self.bits)
         for k,v in self.route.children.items():
@@ -941,7 +946,7 @@ class Route(SimpleNamedTypedList):
         self.doc = xml.attrib.get("doc")
         #print('----{} {}----\nDoc: {}\n'.format(self.mytype, self.name, self.doc))
 
-    def toString(self):
+    def toString(self, indent=0):
         s = "{:<8}: cp: {} name: {}".format(self.mytype, self.cpname, self.name)
         for k, v in self.children.items():
             s = s + '\n\t\t\t\t' + v.toString()
@@ -2036,52 +2041,52 @@ class ControlPoint:
         yield cp
         for d in cp.depends:
             for k, v in d.indications.children.items():
-                yield (k, v)
+                yield k, v
 
     def getControlsList(self):
         for k, v in cp.controls.children.items():
-            yield (k, v)
+            yield k, v
 
     def getIndicationsList(self):
         for k, v in cp.indications.children.items():
-            yield (k, v)
+            yield k, v
 
     def getFieldUnitList(self):
         for k, v in cp.field.children['fieldunit'].children.items():
-            yield (k, v)
+            yield k, v
 
     def getExpanderList(self):
         for k, v in cp.field.children['fieldunit'].expanders.children.items():
-             yield (k, v)
+             yield k, v
 
     def getTrackCircuitList(self):
         for k, v in iter(natsorted(self.appliances.tc.items())):
-            yield (k, v)
+            yield k, v
 
     def getSectionList(self):
         for k, v in iter(natsorted(self.appliances.sections.items())):
-            yield (k, v)
+            yield k, v
 
     def getMaintainerCallList(self):
         for k, v in iter(natsorted(self.appliances.mc.items())):
-            yield (k,v)
+            yield k, v
 
     def getTrackPowerList(self):
         for k, v in iter(natsorted(self.appliances.trackpower.items())):
-            yield (k,v)
+            yield k, v
 
     def getSwitchList(self):
         for k, v in iter(natsorted(self.appliances.sw.items())):
-            yield (k,v)
+            yield k, v
 
     def getSigList(self):
         for k, v in iter(natsorted(self.appliances.sig.items())):
-            yield (k,v)
+            yield k, v
 
     def HeadList(self):
         for k, v in iter(natsorted(self.appliances.sig.items())):
             for hk, hv in iter(natsorted(v.mast.children.items())):
-                yield (hk,hv)
+                yield hk, hv
 
     def DocList(self):
         for d in self.documentation:
@@ -2089,19 +2094,16 @@ class ControlPoint:
 
     def FieldunitList(self):
         for k, v in self.field.children.items():
-            yield (k,v)
+            yield k, v
 
     def today(self):
         return datetime.datetime.today().strftime('%Y-%m-%d %H:%M')
 
-
-def extant_file(x):
-    """
-    'Type' for argparse - checks that file exists but do not open it
-    """
-    if not os.path.exists(x):
-        raise argparse.ArgumentError("{0} does not exist".format(x))
-    return x
+def is_valid_file(parser, arg):
+    if not os.path.exists(arg):
+        parser.error("The file {} does not exist!".format(arg))
+    else:
+        return open(arg, 'r')  # return an open file handle
 
 def write_template(args, dirname, fname):
     # print("Template:  using {}".format(args.templatename[0]))
@@ -2142,7 +2144,7 @@ if __name__ == "__main__":
     fname = ""
     parser = argparse.ArgumentParser(description='Generate code for a control point')
     parser.add_argument("-i", "--input",
-        dest="filename", required=True, type=extant_file,
+        dest="filename", required=True, type=lambda x: is_valid_file(parser, x),
         help="input XML file with control point definition", metavar="FILE")
     parser.add_argument("-o", "--outfile",  dest="outfilename", nargs=1)
     parser.add_argument("-T", "--Template", dest="templatename", nargs=1)
@@ -2168,17 +2170,17 @@ if __name__ == "__main__":
 
         if not args.outfilename :
             if args.type == "decoder":
-                f = ("{cp}.py").format(cp=myname)
+                f = "{cp}.py".format(cp=myname)
             elif args.type == "jmri":
-                f = ("createPanel_{cp}.sh").format(cp=myname)
+                f = "createPanel_{cp}.sh".format(cp=myname)
             elif args.type == "html":
-                f = ("{cp}.html").format(cp=myname)
+                f = "{cp}.html".format(cp=myname)
             elif args.type == "md":
-                f = ("{cp}.md").format(cp=myname)
+                f = "{cp}.md".format(cp=myname)
             elif args.type == "sketch":
-                f = ("{cp}.cc").format(cp=myname)
+                f = "{cp}.cc".format(cp=myname)
             elif args.type == "json":
-                f = ("sketch.json").format(cp=myname)
+                f = "sketch.json".format(cp=myname)
 
         elif args.outfilename[0] == '-':      # stdout...
             f = '-'
